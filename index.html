@@ -240,12 +240,145 @@
     color: var(--black);
   }
 
-  a.item .key{
+  .diff-row{
+    display:flex;
+    gap: 0.5rem;
+    justify-content:center;
+    flex-wrap:wrap;
+    margin: 0 0 0.9rem;
+  }
+
+  .diff-btn{
+    font-family:'VT323', monospace;
+    background: var(--dos-blue);
+    color: var(--cyan);
+    border: 2px solid var(--cyan);
+    padding: 0.3rem 0.8rem;
+    font-size: clamp(0.95rem, 3.2vw, 1.15rem);
+    cursor:pointer;
+    letter-spacing: 0.04em;
+  }
+
+  .diff-btn.active{
+    background: var(--cyan);
+    color: var(--black);
+  }
+
+  .sudoku-wrap{
+    display:flex;
+    justify-content:center;
+    padding: 0.2rem 0;
+  }
+
+  .sudoku-grid{
+    display:grid;
+    grid-template-columns: repeat(9, 1fr);
+    grid-template-rows: repeat(9, 1fr);
+    width: min(100%, 380px);
+    aspect-ratio: 1 / 1;
+    border: 3px double var(--cyan);
+    background: var(--black);
+  }
+
+  .sudoku-cell{
+    font-family:'VT323', monospace;
+    background: var(--dos-blue-dark);
+    color: var(--white);
+    border: 1px solid var(--cyan-dim);
+    font-size: clamp(1rem, 4.5vw, 1.5rem);
+    line-height:1;
+    padding:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    touch-action: manipulation;
+  }
+
+  .sudoku-cell.given{
+    color: var(--grey);
+    cursor:default;
+  }
+
+  .sudoku-cell.selected{
+    background: var(--dos-blue);
+    outline: 2px solid var(--yellow);
+    outline-offset: -2px;
+  }
+
+  .sudoku-cell.conflict{
+    color: #FF5555;
+  }
+
+  .sudoku-cell.box-r{ border-right: 2px solid var(--cyan); }
+  .sudoku-cell.box-b{ border-bottom: 2px solid var(--cyan); }
+
+  .numpad{
+    display:flex;
+    flex-wrap:wrap;
+    gap: 8px;
+    justify-content:center;
+    width:100%;
+    margin: 1rem auto 0;
+    -webkit-user-select:none;
+    user-select:none;
+  }
+
+  .num-btn{
+    font-family:'VT323', monospace;
+    background: var(--dos-blue);
+    color: var(--cyan);
+    border: 2px solid var(--cyan);
+    width: clamp(34px, 9vw, 42px);
+    height: clamp(34px, 9vw, 42px);
+    font-size: clamp(1.1rem, 4vw, 1.4rem);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    touch-action: manipulation;
+  }
+
+  .num-btn:active{
+    background: var(--cyan);
+    color: var(--black);
+  }
+
+  .num-clear{
+    color: #FF5555;
+    border-color: #FF5555;
+  }
+
+  .num-clear:active{
+    background: #FF5555;
+    color: var(--black);
+  }
+
+  .new-game-btn{
+    font-family:'VT323', monospace;
+    background: var(--dos-blue);
+    color: var(--yellow);
+    border: 2px solid var(--yellow);
+    padding: 0.2rem 0.7rem;
+    font-size: clamp(0.95rem, 3.2vw, 1.1rem);
+    cursor:pointer;
+    letter-spacing: 0.03em;
+  }
+
+  .new-game-btn:hover,
+  .new-game-btn:active{
+    background: var(--yellow);
+    color: var(--black);
+  }
+
+  a.item .key,
+  button.item .key{
     color: var(--yellow);
     font-weight:normal;
   }
 
-  a.item .sprite-wrap{
+  a.item .sprite-wrap,
+  button.item .sprite-wrap{
     width: clamp(30px, 8vw, 40px);
     height: clamp(30px, 8vw, 40px);
     flex-shrink:0;
@@ -253,7 +386,8 @@
     image-rendering: crisp-edges;
   }
 
-  a.item .sprite-wrap svg{
+  a.item .sprite-wrap svg,
+  button.item .sprite-wrap svg{
     width:100%;
     height:100%;
     display:block;
@@ -262,7 +396,10 @@
 
   a.item:hover,
   a.item:focus-visible,
-  a.item.keyed{
+  a.item.keyed,
+  button.item:hover,
+  button.item:focus-visible,
+  button.item.keyed{
     background: var(--cyan);
     color: var(--black);
     border-color: var(--white);
@@ -271,7 +408,10 @@
 
   a.item:hover .key,
   a.item:focus-visible .key,
-  a.item.keyed .key{
+  a.item.keyed .key,
+  button.item:hover .key,
+  button.item:focus-visible .key,
+  button.item.keyed .key{
     color: var(--dos-blue-dark);
   }
 
@@ -377,6 +517,10 @@
         <span class="sprite-wrap"><svg id="spr-snake" viewBox="0 0 12 12"></svg></span>
         <span><span class="key">[X]</span> <span data-sl="IGRA: KAČA" data-en="GAME: SNAKE">IGRA: KAČA</span></span>
       </button>
+      <button class="item" id="sudoku-btn" type="button">
+        <span class="sprite-wrap"><svg id="spr-sudoku" viewBox="0 0 12 12"></svg></span>
+        <span><span class="key">[S]</span> <span data-sl="IGRA: SUDOKU" data-en="GAME: SUDOKU">IGRA: SUDOKU</span></span>
+      </button>
     </nav>
 
     <div class="terminal" id="terminal">
@@ -407,6 +551,42 @@
 
     <div class="statusbar">
       <span class="prompt" id="snake-msg">PUŠČICE = PREMIK</span>
+      <span data-sl="ESC=NAZAJ" data-en="ESC=BACK">ESC=NAZAJ</span>
+    </div>
+  </div>
+
+  <div class="screen sudoku-screen" id="sudoku-screen" hidden>
+    <div class="titlebar">
+      <p class="ascii-title" id="sudoku-title" style="font-size:clamp(1.8rem,7vw,2.6rem);" data-sl="SUDOKU" data-en="SUDOKU">SUDOKU</p>
+      <p class="sub" data-sl="IZBERI TEŽAVNOST" data-en="CHOOSE DIFFICULTY">IZBERI TEŽAVNOST</p>
+    </div>
+
+    <div class="diff-row" role="group" aria-label="Difficulty">
+      <button type="button" class="diff-btn" data-diff="easy" data-sl="LAHKO" data-en="EASY">LAHKO</button>
+      <button type="button" class="diff-btn active" data-diff="medium" data-sl="SREDNJE" data-en="MEDIUM">SREDNJE</button>
+      <button type="button" class="diff-btn" data-diff="hard" data-sl="TEŽKO" data-en="HARD">TEŽKO</button>
+    </div>
+
+    <div class="sudoku-wrap">
+      <div class="sudoku-grid" id="sudoku-grid" role="group" aria-label="Sudoku grid"></div>
+    </div>
+
+    <div class="numpad" role="group" aria-label="Number pad">
+      <button type="button" class="num-btn" data-num="1">1</button>
+      <button type="button" class="num-btn" data-num="2">2</button>
+      <button type="button" class="num-btn" data-num="3">3</button>
+      <button type="button" class="num-btn" data-num="4">4</button>
+      <button type="button" class="num-btn" data-num="5">5</button>
+      <button type="button" class="num-btn" data-num="6">6</button>
+      <button type="button" class="num-btn" data-num="7">7</button>
+      <button type="button" class="num-btn" data-num="8">8</button>
+      <button type="button" class="num-btn" data-num="9">9</button>
+      <button type="button" class="num-btn num-clear" data-num="0" aria-label="Clear cell">&times;</button>
+    </div>
+
+    <div class="statusbar">
+      <span class="prompt" id="sudoku-msg">IZBERI POLJE IN VNESI ŠTEVILKO</span>
+      <button type="button" class="new-game-btn" id="sudoku-new" data-sl="NOVA IGRA" data-en="NEW GAME">NOVA IGRA</button>
       <span data-sl="ESC=NAZAJ" data-en="ESC=BACK">ESC=NAZAJ</span>
     </div>
   </div>
@@ -530,10 +710,27 @@
   ];
   var snakePalette = { G:"#55FF55", R:"#FF5555" };
 
+  var sudokuGrid = [
+    "KKKKKKKKKKKK",
+    "KWWWKWWWKWWW",
+    "KWWWKWWWKWWW",
+    "KWWWKWWWKWWW",
+    "KKKKKKKKKKKK",
+    "KWWWKCCCKWWW",
+    "KWWWKCCCKWWW",
+    "KWWWKCCCKWWW",
+    "KKKKKKKKKKKK",
+    "KWWWKWWWKWWW",
+    "KWWWKWWWKWWW",
+    "KWWWKWWWKWWW"
+  ];
+  var sudokuPalette = { K:"#000000", W:"#FFFFFF", C:"#55FFFF" };
+
   drawSprite('spr-boat', boatGrid, boatPalette);
   drawSprite('spr-norway', norwayFlagGrid, norwayFlagPalette);
   drawSprite('spr-ai', aiGrid, aiPalette);
   drawSprite('spr-video', videoGrid, videoPalette);
+  drawSprite('spr-sudoku', sudokuGrid, sudokuPalette);
   drawSprite('spr-camera', cameraGrid, cameraPalette);
   drawSprite('spr-snake', snakeGrid, snakePalette);
 
@@ -593,6 +790,7 @@
     });
 
     updateGameMsg();
+    updateSudokuMsg();
   }
 
   document.querySelectorAll('.lang-btn').forEach(function(btn){
@@ -714,12 +912,6 @@
     }
   }
 
-  window.addEventListener('popstate', function(){
-    if(!snakeScreen.hidden){
-      closeSnake(true);
-    }
-  });
-
   snakeBtn.addEventListener('click', openSnake);
 
   // Shared by keyboard arrows and the on-screen D-pad (for touch/mobile).
@@ -741,18 +933,276 @@
     });
   });
 
+  // ----- Sudoku -----
+  var sudokuScreen = document.getElementById('sudoku-screen');
+  var sudokuBtn = document.getElementById('sudoku-btn');
+  var sudokuGridEl = document.getElementById('sudoku-grid');
+  var sudokuMsgEl = document.getElementById('sudoku-msg');
+  var sudokuNewBtn = document.getElementById('sudoku-new');
+  var diffButtons = document.querySelectorAll('.diff-btn');
+
+  var sudokuPuzzle, sudokuSolution, sudokuGiven, sudokuCells;
+  var sudokuDifficulty = 'medium';
+  var selR = 0, selC = 0;
+  var sudokuMsgState = 'idle'; // idle | won
+
+  var sudokuMsgs = {
+    sl: { idle: 'IZBERI POLJE IN VNESI ŠTEVILKO', won: 'REŠENO! ČESTITAM' },
+    en: { idle: 'SELECT A CELL AND TYPE A NUMBER', won: 'SOLVED! WELL DONE' }
+  };
+
+  function updateSudokuMsg(){
+    sudokuMsgEl.textContent = sudokuMsgs[currentLang][sudokuMsgState];
+  }
+
+  function shuffle(arr){
+    for(var i = arr.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    }
+    return arr;
+  }
+
+  function sudokuValid(g, r, c, v){
+    for(var i = 0; i < 9; i++){
+      if(g[r][i] === v) return false;
+      if(g[i][c] === v) return false;
+    }
+    var br = r - r % 3, bc = c - c % 3;
+    for(var i = 0; i < 3; i++){
+      for(var j = 0; j < 3; j++){
+        if(g[br + i][bc + j] === v) return false;
+      }
+    }
+    return true;
+  }
+
+  function sudokuFindEmpty(g){
+    for(var r = 0; r < 9; r++){
+      for(var c = 0; c < 9; c++){
+        if(g[r][c] === 0) return [r, c];
+      }
+    }
+    return null;
+  }
+
+  function sudokuFill(g){
+    var spot = sudokuFindEmpty(g);
+    if(!spot) return true;
+    var r = spot[0], c = spot[1];
+    var nums = shuffle([1,2,3,4,5,6,7,8,9]);
+    for(var i = 0; i < nums.length; i++){
+      var v = nums[i];
+      if(sudokuValid(g, r, c, v)){
+        g[r][c] = v;
+        if(sudokuFill(g)) return true;
+        g[r][c] = 0;
+      }
+    }
+    return false;
+  }
+
+  // Counts solutions up to `limit` (we only ever need to tell 1 from "more
+  // than 1"), so every branch gets a shrinking budget and bails out early
+  // instead of exploring the whole tree.
+  function sudokuCountSolutions(g, limit){
+    var spot = sudokuFindEmpty(g);
+    if(!spot) return 1;
+    var r = spot[0], c = spot[1];
+    var count = 0;
+    for(var v = 1; v <= 9; v++){
+      if(sudokuValid(g, r, c, v)){
+        g[r][c] = v;
+        count += sudokuCountSolutions(g, limit - count);
+        g[r][c] = 0;
+        if(count >= limit) return count;
+      }
+    }
+    return count;
+  }
+
+  function sudokuClone(g){
+    return g.map(function(row){ return row.slice(); });
+  }
+
+  var SUDOKU_CLUES = { easy: 40, medium: 32, hard: 26 };
+
+  function generateSudoku(diff){
+    var solution = [];
+    for(var i = 0; i < 9; i++) solution.push([0,0,0,0,0,0,0,0,0]);
+    sudokuFill(solution);
+
+    var puzzle = sudokuClone(solution);
+    var targetRemoved = 81 - (SUDOKU_CLUES[diff] || SUDOKU_CLUES.medium);
+    var positions = [];
+    for(var r = 0; r < 9; r++){
+      for(var c = 0; c < 9; c++) positions.push([r, c]);
+    }
+    positions = shuffle(positions);
+
+    var removed = 0;
+    for(var i = 0; i < positions.length && removed < targetRemoved; i++){
+      var r = positions[i][0], c = positions[i][1];
+      var backup = puzzle[r][c];
+      puzzle[r][c] = 0;
+      // Only keep a cell removed if the puzzle still has exactly one
+      // solution — otherwise it isn't a valid, solvable Sudoku.
+      if(sudokuCountSolutions(sudokuClone(puzzle), 2) === 1){
+        removed++;
+      } else {
+        puzzle[r][c] = backup;
+      }
+    }
+
+    return { puzzle: puzzle, solution: solution };
+  }
+
+  function buildSudokuGrid(){
+    sudokuGridEl.innerHTML = '';
+    sudokuCells = [];
+    for(var r = 0; r < 9; r++){
+      sudokuCells.push([]);
+      for(var c = 0; c < 9; c++){
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'sudoku-cell';
+        if(c === 2 || c === 5) btn.classList.add('box-r');
+        if(r === 2 || r === 5) btn.classList.add('box-b');
+        btn.addEventListener('click', (function(rr, cc){
+          return function(){ selR = rr; selC = cc; renderSudoku(); };
+        })(r, c));
+        sudokuGridEl.appendChild(btn);
+        sudokuCells[r].push(btn);
+      }
+    }
+  }
+
+  function sudokuHasConflict(r, c, v){
+    for(var i = 0; i < 9; i++){
+      if(i !== c && sudokuPuzzle[r][i] === v) return true;
+      if(i !== r && sudokuPuzzle[i][c] === v) return true;
+    }
+    var br = r - r % 3, bc = c - c % 3;
+    for(var i = 0; i < 3; i++){
+      for(var j = 0; j < 3; j++){
+        var rr = br + i, cc = bc + j;
+        if((rr !== r || cc !== c) && sudokuPuzzle[rr][cc] === v) return true;
+      }
+    }
+    return false;
+  }
+
+  function renderSudoku(){
+    for(var r = 0; r < 9; r++){
+      for(var c = 0; c < 9; c++){
+        var btn = sudokuCells[r][c];
+        var v = sudokuPuzzle[r][c];
+        btn.textContent = v === 0 ? '' : String(v);
+        btn.classList.toggle('given', sudokuGiven[r][c]);
+        btn.classList.toggle('selected', r === selR && c === selC);
+        var conflict = v !== 0 && !sudokuGiven[r][c] && sudokuHasConflict(r, c, v);
+        btn.classList.toggle('conflict', conflict);
+      }
+    }
+  }
+
+  function checkSudokuWin(){
+    var solved = true;
+    outer:
+    for(var r = 0; r < 9; r++){
+      for(var c = 0; c < 9; c++){
+        if(sudokuPuzzle[r][c] !== sudokuSolution[r][c]){ solved = false; break outer; }
+      }
+    }
+    sudokuMsgState = solved ? 'won' : 'idle';
+    updateSudokuMsg();
+  }
+
+  function setSudokuCell(v){
+    if(sudokuGiven[selR][selC]) return;
+    sudokuPuzzle[selR][selC] = v;
+    renderSudoku();
+    checkSudokuWin();
+  }
+
+  function startSudoku(diff){
+    sudokuDifficulty = diff;
+    diffButtons.forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-diff') === diff);
+    });
+    var result = generateSudoku(diff);
+    sudokuPuzzle = result.puzzle;
+    sudokuSolution = result.solution;
+    sudokuGiven = sudokuPuzzle.map(function(row){
+      return row.map(function(v){ return v !== 0; });
+    });
+    selR = 0; selC = 0;
+    sudokuMsgState = 'idle';
+    if(!sudokuCells) buildSudokuGrid();
+    renderSudoku();
+    updateSudokuMsg();
+  }
+
+  diffButtons.forEach(function(b){
+    b.addEventListener('click', function(){
+      startSudoku(b.getAttribute('data-diff'));
+    });
+  });
+
+  sudokuNewBtn.addEventListener('click', function(){
+    startSudoku(sudokuDifficulty);
+  });
+
+  document.querySelectorAll('.num-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      setSudokuCell(parseInt(btn.getAttribute('data-num'), 10));
+    });
+  });
+
+  var sudokuHistoryPushed = false;
+
+  function openSudoku(){
+    mainScreen.hidden = true;
+    sudokuScreen.hidden = false;
+    if(!sudokuPuzzle) startSudoku(sudokuDifficulty);
+    history.pushState({ fotraScreen:'sudoku' }, '');
+    sudokuHistoryPushed = true;
+  }
+
+  function closeSudoku(viaPopstate){
+    sudokuScreen.hidden = true;
+    mainScreen.hidden = false;
+    sudokuBtn.focus({ preventScroll:true });
+    if(sudokuHistoryPushed && !viaPopstate){
+      sudokuHistoryPushed = false;
+      history.back();
+    } else {
+      sudokuHistoryPushed = false;
+    }
+  }
+
+  sudokuBtn.addEventListener('click', openSudoku);
+
+  window.addEventListener('popstate', function(){
+    if(!snakeScreen.hidden){
+      closeSnake(true);
+    } else if(!sudokuScreen.hidden){
+      closeSudoku(true);
+    }
+  });
+
   // ----- Terminal-style command input (C:\FOTRA>), CMD-like -----
   var termLog = document.getElementById('termLog');
   var termInput = document.getElementById('termInput');
 
   var termHelp = {
-    sl: ['Ukazi: J=JADRANJE  N=NORVEŠKA  A=AI  V=VIDEO  F=FOTO  X=KAČA', 'DIR = izpiši meni    CLS = počisti zaslon    HELP = ta pomoč'],
-    en: ['Commands: J=SAILING  N=NORWAY  A=AI  V=VIDEO  F=PHOTO  X=SNAKE', 'DIR = list menu    CLS = clear screen    HELP = this help']
+    sl: ['Ukazi: J=JADRANJE  N=NORVEŠKA  A=AI  V=VIDEO  F=FOTO  X=KAČA  S=SUDOKU', 'DIR = izpiši meni    CLS = počisti zaslon    HELP = ta pomoč'],
+    en: ['Commands: J=SAILING  N=NORWAY  A=AI  V=VIDEO  F=PHOTO  X=SNAKE  S=SUDOKU', 'DIR = list menu    CLS = clear screen    HELP = this help']
   };
 
   var termDir = {
-    sl: [' A   AI          -> ai.fotra.net', ' N   NORVESKA    -> norway.fotra.net', ' J   JADRANJE    -> jadranje.fotra.net', ' V   VIDEO       -> video.fotra.net', ' F   FOTO        -> instagram', ' X   IGRA: KACA'],
-    en: [' A   AI          -> ai.fotra.net', ' N   NORWAY      -> norway.fotra.net', ' J   SAILING     -> jadranje.fotra.net', ' V   VIDEO       -> video.fotra.net', ' F   PHOTO       -> instagram', ' X   GAME: SNAKE']
+    sl: [' A   AI          -> ai.fotra.net', ' N   NORVESKA    -> norway.fotra.net', ' J   JADRANJE    -> jadranje.fotra.net', ' V   VIDEO       -> video.fotra.net', ' F   FOTO        -> instagram', ' X   IGRA: KACA', ' S   IGRA: SUDOKU'],
+    en: [' A   AI          -> ai.fotra.net', ' N   NORWAY      -> norway.fotra.net', ' J   SAILING     -> jadranje.fotra.net', ' V   VIDEO       -> video.fotra.net', ' F   PHOTO       -> instagram', ' X   GAME: SNAKE', ' S   GAME: SUDOKU']
   };
 
   var termUnknown = {
@@ -794,6 +1244,12 @@
     if(norm === 'X' || norm === 'SNAKE' || norm === 'KACA' || norm === 'IGRA'){
       termPrint([currentLang === 'sl' ? 'Zaganjam KACA.EXE ...' : 'Launching SNAKE.EXE ...']);
       window.setTimeout(openSnake, 200);
+      return;
+    }
+
+    if(norm === 'S' || norm === 'SUDOKU'){
+      termPrint([currentLang === 'sl' ? 'Zaganjam SUDOKU.EXE ...' : 'Launching SUDOKU.EXE ...']);
+      window.setTimeout(openSudoku, 200);
       return;
     }
 
@@ -873,12 +1329,55 @@
       return;
     }
 
+    var sudokuOpen = !sudokuScreen.hidden;
+
+    if(sudokuOpen){
+      if(e.key === 'Escape'){
+        e.preventDefault();
+        closeSudoku();
+        return;
+      }
+
+      var sudokuArrowMap = {
+        ArrowUp:[-1,0], ArrowDown:[1,0], ArrowLeft:[0,-1], ArrowRight:[0,1]
+      };
+      if(sudokuArrowMap[e.key]){
+        e.preventDefault();
+        var d = sudokuArrowMap[e.key];
+        selR = Math.min(8, Math.max(0, selR + d[0]));
+        selC = Math.min(8, Math.max(0, selC + d[1]));
+        renderSudoku();
+        return;
+      }
+
+      if(/^[1-9]$/.test(e.key)){
+        e.preventDefault();
+        setSudokuCell(parseInt(e.key, 10));
+        return;
+      }
+
+      if(e.key === 'Backspace' || e.key === 'Delete' || e.key === '0'){
+        e.preventDefault();
+        setSudokuCell(0);
+        return;
+      }
+
+      return;
+    }
+
     var key = e.key.toUpperCase();
 
     if(key === 'X'){
       e.preventDefault();
       snakeBtn.classList.add('keyed');
       window.setTimeout(openSnake, 160);
+      return;
+    }
+
+    if(key === 'S'){
+      e.preventDefault();
+      sudokuBtn.classList.add('keyed');
+      window.setTimeout(openSudoku, 160);
       return;
     }
 
