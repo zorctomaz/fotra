@@ -133,6 +133,35 @@
     color: var(--yellow);
   }
 
+  .feature-list{
+    list-style:none;
+    margin: 0 0 1.1rem;
+    padding: 0;
+    display:flex;
+    flex-direction:column;
+    gap: 0.5rem;
+  }
+
+  .feature-list li{
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    line-height: 1.4;
+    padding-left: 1.4em;
+    position:relative;
+  }
+
+  .feature-list li::before{
+    content: ">";
+    position:absolute;
+    left: 0;
+    color: var(--yellow);
+  }
+
+  .body-text.highlight{
+    color: var(--cyan);
+    border-left: 3px solid var(--cyan-dim);
+    padding-left: 0.8em;
+  }
+
   .statusbar{
     margin-top: 1.3rem;
     padding-top: 0.9rem;
@@ -177,10 +206,19 @@
         <button type="button" class="lang-btn" data-lang="en">EN</button>
       </div>
       <p class="ascii-title">AI</p>
-      <p class="sub" data-sl="V PRIPRAVI" data-en="UNDER CONSTRUCTION">V PRIPRAVI</p>
+      <p class="sub" data-sl="KAJ SEM ZGRADIL S CLAUDE" data-en="WHAT I'VE BUILT WITH CLAUDE">KAJ SEM ZGRADIL S CLAUDE</p>
     </div>
 
-    <p class="body-text" data-sl="Ta razdelek je še v gradnji. Kmalu bo tu na voljo vsebina, povezana z umetno inteligenco." data-en="This section is still under construction. AI-related content will be available here soon.">Ta razdelek je še v gradnji. Kmalu bo tu na voljo vsebina, povezana z umetno inteligenco.</p>
+    <p class="body-text" data-sl="Vso to spletno infrastrukturo (od te strani do rezervacijskega sistema za odpravo na Norveško) sem zgradil in vzdržujem s pomočjo Claude, AI asistenta podjetja Anthropic - brez ločenega razvijalca, brez agencije, v enem samem pogovoru naenkrat." data-en="This entire web infrastructure - from this page to the Norway expedition booking system - was built and is maintained with the help of Claude, Anthropic's AI assistant - no separate developer, no agency, one conversation at a time.">Vso to spletno infrastrukturo (od te strani do rezervacijskega sistema za odpravo na Norveško) sem zgradil in vzdržujem s pomočjo Claude, AI asistenta podjetja Anthropic - brez ločenega razvijalca, brez agencije, v enem samem pogovoru naenkrat.</p>
+
+    <ul class="feature-list">
+      <li data-sl="Dvojezična (SI/EN) predstavitvena stran za odpravo na Norveško: itinerar, galerija s povečavo slik, video vsebine, kalkulator cene in rezervacijski obrazec." data-en="Bilingual (SI/EN) landing page for the Norway expedition: itinerary, zoomable photo gallery, video content, price calculator and booking form.">Dvojezična (SI/EN) predstavitvena stran za odpravo na Norveško: itinerar, galerija s povečavo slik, video vsebine, kalkulator cene in rezervacijski obrazec.</li>
+      <li data-sl="Avtomatski stroškovnik potovanja (Excel) s formulami za najem kombija, gorivo, nastanitve in vstopnice." data-en="Automated trip budget spreadsheet (Excel) with formulas for van rental, fuel, accommodation and tickets.">Avtomatski stroškovnik potovanja (Excel) s formulami za najem kombija, gorivo, nastanitve in vstopnice.</li>
+      <li data-sl="Ta FOTRA portal - osrednja vstopna točka do vseh mojih projektov (jadranje, Norveška, video, foto, AI)." data-en="This FOTRA portal - a single entry point to all my projects (sailing, Norway, video, photo, AI).">Ta FOTRA portal - osrednja vstopna točka do vseh mojih projektov (jadranje, Norveška, video, foto, AI).</li>
+      <li data-sl="Podstran z zbirko video posnetkov ter ureditev domen in DNS zapisov (GoDaddy + GitHub Pages) za vse poddomene." data-en="A video subpage with a curated clip collection, plus domain and DNS setup (GoDaddy + GitHub Pages) for all subdomains.">Podstran z zbirko video posnetkov ter ureditev domen in DNS zapisov (GoDaddy + GitHub Pages) za vse poddomene.</li>
+    </ul>
+
+    <p class="body-text highlight" data-sl="Glavna prednost pred klasičnim pristopom: vse to ni zbirka ločenih strani, temveč en sam integriran sistem. To omogoča optimizacijo administracije in dostop do podatkov kadarkoli, kjerkoli - brez spreminjanja obstoječih aplikacij, poizvedb ali procesov." data-en="The main advantage over a classic approach: this isn't a collection of separate sites, but one single integrated system. That enables optimized administration and access to data anytime, anywhere - without changing existing applications, queries or processes.">Glavna prednost pred klasičnim pristopom: vse to ni zbirka ločenih strani, temveč en sam integriran sistem. To omogoča optimizacijo administracije in dostop do podatkov kadarkoli, kjerkoli - brez spreminjanja obstoječih aplikacij, poizvedb ali procesov.</p>
 
     <div class="statusbar">
       <span class="prompt">C:\FOTRA\AI&gt;<span class="cursor"></span></span>
