@@ -331,7 +331,7 @@
         <span><span class="key">[J]</span> <span data-sl="JADRANJE" data-en="SAILING">JADRANJE</span></span>
       </a>
       <a class="item" href="https://norway.fotra.net">
-        <span class="sprite-wrap"><svg id="spr-mountain" viewBox="0 0 12 12"></svg></span>
+        <span class="sprite-wrap"><svg id="spr-norway" viewBox="0 0 12 12"></svg></span>
         <span><span class="key">[N]</span> <span data-sl="NORVEŠKA" data-en="NORWAY">NORVEŠKA</span></span>
       </a>
       <a class="item" href="video/">
@@ -420,21 +420,21 @@
   ];
   var boatPalette = { K:"#000000", W:"#FFFFFF", B:"#AA5500", N:"#00AAAA" };
 
-  var mountainGrid = [
-    "....Y.......",
-    "............",
-    "...GG.......",
-    "..GGGG......",
-    ".WGGGGG.....",
-    "GGGGGGGG....",
-    "..GG..GGG...",
-    ".GGG..GGGG..",
-    "GGGG..GGGGG.",
-    "CCCCCCCCCCCC",
-    "CCCCCCCCCCCC",
-    "............"
+  var norwayFlagGrid = [
+    "RRRWBWRRRRRR",
+    "RRRWBWRRRRRR",
+    "RRRWBWRRRRRR",
+    "RRRWBWRRRRRR",
+    "RRRWBWRRRRRR",
+    "WWWWBWWWWWWW",
+    "BBBBBBBBBBBB",
+    "WWWWBWWWWWWW",
+    "RRRWBWRRRRRR",
+    "RRRWBWRRRRRR",
+    "RRRWBWRRRRRR",
+    "RRRWBWRRRRRR"
   ];
-  var mountainPalette = { Y:"#FFFF55", G:"#AAAAAA", W:"#FFFFFF", C:"#00AAAA" };
+  var norwayFlagPalette = { R:"#BA0C2F", W:"#FFFFFF", B:"#00205B" };
 
   var videoGrid = [
     "............",
@@ -485,7 +485,7 @@
   var snakePalette = { G:"#55FF55", R:"#FF5555" };
 
   drawSprite('spr-boat', boatGrid, boatPalette);
-  drawSprite('spr-mountain', mountainGrid, mountainPalette);
+  drawSprite('spr-norway', norwayFlagGrid, norwayFlagPalette);
   drawSprite('spr-video', videoGrid, videoPalette);
   drawSprite('spr-camera', cameraGrid, cameraPalette);
   drawSprite('spr-snake', snakeGrid, snakePalette);
