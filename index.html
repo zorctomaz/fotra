@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FOTRA.EXE</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+  :root{
+    --dos-blue: #0000AA;
+    --dos-blue-dark: #000077;
+    --cyan: #55FFFF;
+    --cyan-dim: #00AAAA;
+    --white: #FFFFFF;
+    --yellow: #FFFF55;
+    --grey: #AAAAAA;
+    --black: #000000;
+  }
+
+  *{ box-sizing:border-box; }
+
+  html,body{
+    margin:0;
+    padding:0;
+    width:100%;
+    overflow-x:hidden;
+    background: var(--dos-blue);
+    color: var(--white);
+    font-family: 'VT323', monospace;
+  }
+
+  body{
+    height:100svh;
+    width:100vw;
+    display:flex;
+    align-items:stretch;
+    justify-content:stretch;
+    padding:0;
+    position:relative;
+  }
+
+  /* CRT scanlines */
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(0,0,0,0.18) 0px,
+      rgba(0,0,0,0.18) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    z-index: 5;
+  }
+
+  /* subtle vignette flicker */
+  body::after{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.35) 100%);
+    z-index: 4;
+    animation: flicker 6s infinite steps(30);
+  }
+
+  @keyframes flicker{
+    0%,100%{ opacity:1; }
+    50%{ opacity:0.97; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    body::after{ animation:none; }
+  }
+
+  .screen{
+    width:100%;
+    height:100%;
+    max-width:none;
+    border: 6px double var(--cyan);
+    background: var(--dos-blue);
+    padding: clamp(1rem, 4vw, 1.8rem) clamp(1.2rem, 4vw, 2.2rem) clamp(1.4rem, 4vw, 2rem);
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    overflow-y:auto;
+  }
+
+  .screen[hidden]{
+    display:none;
+  }
+
+  .screen > *{
+    width:100%;
+    max-width: 640px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+
+  .titlebar{
+    text-align:center;
+    border-bottom: 2px solid var(--cyan-dim);
+    padding-bottom: 0.9rem;
+    margin-bottom: 1.1rem;
+    position:relative;
+  }
+
+  .lang-toggle{
+    position:absolute;
+    top: 0;
+    right: 0;
+    display:flex;
+    border: 2px solid var(--cyan);
+  }
+
+  .lang-btn{
+    font-family:'VT323', monospace;
+    background: var(--dos-blue);
+    color: var(--cyan);
+    border: none;
+    padding: 0.2rem 0.6rem;
+    font-size: clamp(0.95rem, 3vw, 1.15rem);
+    cursor:pointer;
+    letter-spacing: 0.05em;
+  }
+
+  .lang-btn + .lang-btn{
+    border-left: 2px solid var(--cyan);
+  }
+
+  .lang-btn.active{
+    background: var(--cyan);
+    color: var(--black);
+  }
+
+  .ascii-title{
+    font-size: clamp(2.6rem, 11vw, 4.2rem);
+    line-height:1;
+    letter-spacing: 0.12em;
+    color: var(--yellow);
+    text-shadow: 0 0 6px rgba(255,255,85,0.5);
+    margin: 0 0 0.35rem;
+  }
+
+  .sub{
+    font-size: clamp(1.05rem, 3.2vw, 1.3rem);
+    color: var(--cyan);
+    letter-spacing: 0.08em;
+    margin:0;
+  }
+
+  .sub .sep{ color: var(--grey); margin: 0 0.4em; }
+
+  nav.menu{
+    display:flex;
+    flex-direction:column;
+    gap: 0.5rem;
+  }
+
+  a.item, button.item{
+    display:flex;
+    align-items:center;
+    gap: 0.9rem;
+    text-decoration:none;
+    color: var(--white);
+    padding: 0.55rem 0.7rem;
+    border: 2px solid transparent;
+    font-size: clamp(1.2rem, 4vw, 1.5rem);
+    letter-spacing: 0.04em;
+    background:none;
+    font-family:'VT323', monospace;
+    width:100%;
+    text-align:left;
+    cursor:pointer;
+  }
+
+  .canvas-wrap{
+    display:flex;
+    justify-content:center;
+    padding: 0.4rem 0;
+  }
+
+  #snake-canvas{
+    background: var(--black);
+    border: 3px double var(--cyan);
+    width: min(100%, 320px);
+    height: auto;
+    aspect-ratio: 1 / 1;
+    image-rendering: pixelated;
+  }
+
+  a.item .key{
+    color: var(--yellow);
+    font-weight:normal;
+  }
+
+  a.item .sprite-wrap{
+    width: clamp(30px, 8vw, 40px);
+    height: clamp(30px, 8vw, 40px);
+    flex-shrink:0;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+
+  a.item .sprite-wrap svg{
+    width:100%;
+    height:100%;
+    display:block;
+    shape-rendering: crispEdges;
+  }
+
+  a.item:hover,
+  a.item:focus-visible,
+  a.item.keyed{
+    background: var(--cyan);
+    color: var(--black);
+    border-color: var(--white);
+    outline: none;
+  }
+
+  a.item:hover .key,
+  a.item:focus-visible .key,
+  a.item.keyed .key{
+    color: var(--dos-blue-dark);
+  }
+
+  .statusbar{
+    margin-top: 1.3rem;
+    padding-top: 0.9rem;
+    border-top: 2px solid var(--cyan-dim);
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    color: var(--grey);
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap: 0.4rem;
+  }
+
+  .prompt{
+    color: var(--white);
+  }
+
+  .cursor{
+    display:inline-block;
+    width: 0.55em;
+    background: var(--white);
+    animation: blink 1s steps(1) infinite;
+    margin-left: 2px;
+  }
+
+  .cursor::after{ content:"\00a0"; }
+
+  @keyframes blink{
+    0%,49%{ opacity:1; }
+    50%,100%{ opacity:0; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .cursor{ animation:none; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="screen">
+    <div class="titlebar">
+      <div class="lang-toggle" role="group" aria-label="Language">
+        <button type="button" class="lang-btn active" data-lang="sl">SI</button>
+        <button type="button" class="lang-btn" data-lang="en">EN</button>
+      </div>
+      <p class="ascii-title">FOTRA</p>
+      <p class="sub"><span data-sl="JADRANJE" data-en="SAILING">JADRANJE</span><span class="sep">·</span><span data-sl="NORVEŠKA" data-en="NORWAY">NORVEŠKA</span><span class="sep">·</span><span data-sl="VIDEO" data-en="VIDEO">VIDEO</span><span class="sep">·</span><span data-sl="FOTO" data-en="PHOTO">FOTO</span></p>
+    </div>
+
+    <nav class="menu">
+      <a class="item" href="https://sail.fotra.net">
+        <span class="sprite-wrap"><svg id="spr-boat" viewBox="0 0 12 12"></svg></span>
+        <span><span class="key">[J]</span> <span data-sl="JADRANJE" data-en="SAILING">JADRANJE</span></span>
+      </a>
+      <a class="item" href="https://norway.fotra.net">
+        <span class="sprite-wrap"><svg id="spr-mountain" viewBox="0 0 12 12"></svg></span>
+        <span><span class="key">[N]</span> <span data-sl="NORVEŠKA" data-en="NORWAY">NORVEŠKA</span></span>
+      </a>
+      <a class="item" href="https://video.fotra.net">
+        <span class="sprite-wrap"><svg id="spr-video" viewBox="0 0 12 12"></svg></span>
+        <span><span class="key">[V]</span> <span data-sl="VIDEO" data-en="VIDEO">VIDEO</span></span>
+      </a>
+      <a class="item" href="https://foto.fotra.net">
+        <span class="sprite-wrap"><svg id="spr-camera" viewBox="0 0 12 12"></svg></span>
+        <span><span class="key">[F]</span> <span data-sl="FOTO" data-en="PHOTO">FOTO</span></span>
+      </a>
+      <button class="item" id="snake-btn" type="button">
+        <span class="sprite-wrap"><svg id="spr-snake" viewBox="0 0 12 12"></svg></span>
+        <span><span class="key">[X]</span> <span data-sl="IGRA: KAČA" data-en="GAME: SNAKE">IGRA: KAČA</span></span>
+      </button>
+    </nav>
+
+    <div class="statusbar">
+      <span class="prompt">C:\FOTRA&gt;<span class="cursor"></span></span>
+      <span>PRESS J/N/V/F/X&nbsp;&nbsp;ESC=EXIT</span>
+    </div>
+  </div>
+
+  <div class="screen snake-screen" id="snake-screen" hidden>
+    <div class="titlebar">
+      <p class="ascii-title" id="snake-title" style="font-size:clamp(1.8rem,7vw,2.6rem);" data-sl="KAČA" data-en="SNAKE">KAČA</p>
+      <p class="sub" id="snake-score">SCORE: 0</p>
+    </div>
+
+    <div class="canvas-wrap">
+      <canvas id="snake-canvas" width="220" height="220"></canvas>
+    </div>
+
+    <div class="statusbar">
+      <span class="prompt" id="snake-msg">PUŠČICE = PREMIK</span>
+      <span data-sl="ESC=NAZAJ" data-en="ESC=BACK">ESC=NAZAJ</span>
+    </div>
+  </div>
+
+<script>
+  function drawSprite(id, grid, palette){
+    var svg = document.getElementById(id);
+    if(!svg) return;
+    var frag = document.createDocumentFragment();
+    for(var y = 0; y < grid.length; y++){
+      var row = grid[y];
+      for(var x = 0; x < row.length; x++){
+        var ch = row[x];
+        if(ch !== '.'){
+          var rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+          rect.setAttribute('x', x);
+          rect.setAttribute('y', y);
+          rect.setAttribute('width', 1.02);
+          rect.setAttribute('height', 1.02);
+          rect.setAttribute('fill', palette[ch]);
+          frag.appendChild(rect);
+        }
+      }
+    }
+    svg.appendChild(frag);
+  }
+
+  var boatGrid = [
+    "............",
+    ".....K......",
+    "....WK......",
+    "...WWK......",
+    "..WWWK......",
+    ".WWWWK......",
+    "WWWWWK......",
+    ".....K......",
+    "....BBBB....",
+    "...BBBBBB...",
+    "..BBBBBBBB..",
+    "NNNNNNNNNNNN"
+  ];
+  var boatPalette = { K:"#000000", W:"#FFFFFF", B:"#AA5500", N:"#00AAAA" };
+
+  var mountainGrid = [
+    "....Y.......",
+    "............",
+    "...GG.......",
+    "..GGGG......",
+    ".WGGGGG.....",
+    "GGGGGGGG....",
+    "..GG..GGG...",
+    ".GGG..GGGG..",
+    "GGGG..GGGGG.",
+    "CCCCCCCCCCCC",
+    "CCCCCCCCCCCC",
+    "............"
+  ];
+  var mountainPalette = { Y:"#FFFF55", G:"#AAAAAA", W:"#FFFFFF", C:"#00AAAA" };
+
+  var videoGrid = [
+    "............",
+    ".KKKKKKKK...",
+    ".KWWWWWWK...",
+    ".KWCCCCWK.KK",
+    ".KWCCCCWKKRK",
+    ".KWWWWWWK.KK",
+    ".KKKKKKKK...",
+    "............",
+    "....RR......",
+    "....RR......",
+    "............",
+    "............"
+  ];
+  var videoPalette = { K:"#000000", W:"#FFFFFF", C:"#00AAAA", R:"#FF5555" };
+
+  var cameraGrid = [
+    "............",
+    "..KK....KK..",
+    ".KKKKKKKKKK.",
+    "KKKKKKKKKKKK",
+    "KKKWWWWWWKKK",
+    "KKWWCCCCWWKK",
+    "KKWWCCCCWWKK",
+    "KKKWWWWWWKKK",
+    "KKKKKKKKKKKK",
+    "............",
+    "..Y......Y..",
+    "............"
+  ];
+  var cameraPalette = { K:"#000000", W:"#FFFFFF", C:"#55FFFF", Y:"#FFFF55" };
+
+  var snakeGrid = [
+    "............",
+    "............",
+    "..GGGG......",
+    ".G....G.....",
+    ".G.....G....",
+    "..G.....G...",
+    "...G.....G..",
+    "....G.....GG",
+    ".....G....RG",
+    "......G...GG",
+    ".......GGGG.",
+    "............"
+  ];
+  var snakePalette = { G:"#55FF55", R:"#FF5555" };
+
+  drawSprite('spr-boat', boatGrid, boatPalette);
+  drawSprite('spr-mountain', mountainGrid, mountainPalette);
+  drawSprite('spr-video', videoGrid, videoPalette);
+  drawSprite('spr-camera', cameraGrid, cameraPalette);
+  drawSprite('spr-snake', snakeGrid, snakePalette);
+
+  // ----- Language toggle -----
+  var currentLang = 'sl';
+  var gameMsgState = 'idle'; // idle | playing | over
+
+  var gameMsgs = {
+    sl: { idle: 'PUŠČICE = PREMIK', playing: 'IGRA SE...', over: 'KONEC - ENTER=ZNOVA' },
+    en: { idle: 'ARROWS = MOVE', playing: 'PLAYING...', over: 'GAME OVER - ENTER=RESTART' }
+  };
+
+  function updateGameMsg(){
+    msgEl.textContent = gameMsgs[currentLang][gameMsgState];
+  }
+
+  function setLang(lang){
+    currentLang = lang;
+    document.documentElement.lang = lang;
+
+    document.querySelectorAll('[data-sl][data-en]').forEach(function(el){
+      el.textContent = lang === 'en' ? el.getAttribute('data-en') : el.getAttribute('data-sl');
+    });
+
+    document.querySelectorAll('.lang-btn').forEach(function(btn){
+      btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+    });
+
+    updateGameMsg();
+  }
+
+  document.querySelectorAll('.lang-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      setLang(btn.getAttribute('data-lang'));
+    });
+  });
+
+  // ----- Keyboard shortcuts: press a letter to jump straight to that page -----
+  var shortcuts = { J: 'https://sail.fotra.net', N: 'https://norway.fotra.net', V: 'https://video.fotra.net', F: 'https://foto.fotra.net' };
+
+  var mainScreen = document.querySelector('.screen:not(.snake-screen)');
+  var snakeScreen = document.getElementById('snake-screen');
+  var snakeBtn = document.getElementById('snake-btn');
+  var canvas = document.getElementById('snake-canvas');
+  var ctx = canvas.getContext('2d');
+  var scoreEl = document.getElementById('snake-score');
+  var msgEl = document.getElementById('snake-msg');
+
+  var GRID = 20;
+  var CELL = canvas.width / GRID;
+  var snake, dir, nextDir, food, score, loopId, gameOver, gameStarted;
+
+  function resetGame(){
+    snake = [{x:10,y:10},{x:9,y:10},{x:8,y:10}];
+    dir = {x:1,y:0};
+    nextDir = {x:1,y:0};
+    score = 0;
+    gameOver = false;
+    gameStarted = false;
+    placeFood();
+    scoreEl.textContent = 'SCORE: 0';
+    gameMsgState = 'idle';
+    updateGameMsg();
+    drawGame();
+  }
+
+  function placeFood(){
+    var ok = false;
+    while(!ok){
+      food = { x: Math.floor(Math.random()*GRID), y: Math.floor(Math.random()*GRID) };
+      ok = !snake.some(function(s){ return s.x === food.x && s.y === food.y; });
+    }
+  }
+
+  function drawGame(){
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = '#FF5555';
+    ctx.fillRect(food.x*CELL, food.y*CELL, CELL, CELL);
+
+    ctx.fillStyle = '#55FF55';
+    snake.forEach(function(seg, i){
+      ctx.fillStyle = i === 0 ? '#FFFFFF' : '#55FF55';
+      ctx.fillRect(seg.x*CELL + 1, seg.y*CELL + 1, CELL - 2, CELL - 2);
+    });
+  }
+
+  function tick(){
+    if(gameOver) return;
+    dir = nextDir;
+    var head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+
+    var hitWall = head.x < 0 || head.x >= GRID || head.y < 0 || head.y >= GRID;
+    var hitSelf = snake.some(function(s){ return s.x === head.x && s.y === head.y; });
+
+    if(hitWall || hitSelf){
+      gameOver = true;
+      clearInterval(loopId);
+      gameMsgState = 'over';
+      updateGameMsg();
+      return;
+    }
+
+    snake.unshift(head);
+
+    if(head.x === food.x && head.y === food.y){
+      score += 10;
+      scoreEl.textContent = 'SCORE: ' + score;
+      placeFood();
+    } else {
+      snake.pop();
+    }
+
+    drawGame();
+  }
+
+  function startGame(){
+    if(gameStarted) return;
+    gameStarted = true;
+    gameMsgState = 'playing';
+    updateGameMsg();
+    loopId = setInterval(tick, 120);
+  }
+
+  function openSnake(){
+    mainScreen.hidden = true;
+    snakeScreen.hidden = false;
+    resetGame();
+  }
+
+  function closeSnake(){
+    clearInterval(loopId);
+    snakeScreen.hidden = true;
+    mainScreen.hidden = false;
+    snakeBtn.focus({ preventScroll:true });
+  }
+
+  snakeBtn.addEventListener('click', openSnake);
+
+  document.addEventListener('keydown', function(e){
+    var snakeOpen = !snakeScreen.hidden;
+
+    if(snakeOpen){
+      var arrowMap = {
+        ArrowUp:{x:0,y:-1}, ArrowDown:{x:0,y:1},
+        ArrowLeft:{x:-1,y:0}, ArrowRight:{x:1,y:0}
+      };
+
+      if(e.key === 'Escape'){
+        e.preventDefault();
+        closeSnake();
+        return;
+      }
+
+      if(arrowMap[e.key]){
+        e.preventDefault();
+        var d = arrowMap[e.key];
+        // ignore reversing directly into itself
+        if(dir.x + d.x !== 0 || dir.y + d.y !== 0){
+          nextDir = d;
+        }
+        startGame();
+        return;
+      }
+
+      if(gameOver && e.key === 'Enter'){
+        e.preventDefault();
+        resetGame();
+        return;
+      }
+
+      return;
+    }
+
+    var key = e.key.toUpperCase();
+
+    if(key === 'X'){
+      e.preventDefault();
+      snakeBtn.classList.add('keyed');
+      window.setTimeout(openSnake, 160);
+      return;
+    }
+
+    var href = shortcuts[key];
+    if(!href) return;
+
+    var link = document.querySelector('a.item[href="' + href + '"]');
+    if(!link) return;
+
+    e.preventDefault();
+    link.classList.add('keyed');
+    link.focus({ preventScroll: true });
+
+    window.setTimeout(function(){
+      window.location.href = href;
+    }, 160);
+  });
+
+</script>
+
+</body>
+</html>
