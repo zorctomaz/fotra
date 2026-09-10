@@ -573,13 +573,14 @@
 
     try{ localStorage.setItem('fotraLang', lang); }catch(e){}
 
-    // norway.fotra.net, ai.fotra.net and video.fotra.net each read ?lang=
-    // on load, so carry the current language across to those
-    // different-origin sites too (their own localStorage isn't shared
-    // with this one).
+    // norway.fotra.net, ai.fotra.net, jadranje.fotra.net and video.fotra.net
+    // each read ?lang= on load, so carry the current language across to
+    // those different-origin sites too (their own localStorage isn't
+    // shared with this one).
     var langLinkedOrigins = {
       N: 'https://norway.fotra.net',
       A: 'https://ai.fotra.net',
+      J: 'https://jadranje.fotra.net',
       V: 'https://video.fotra.net'
     };
     Object.keys(langLinkedOrigins).forEach(function(key){
