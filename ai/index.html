@@ -205,6 +205,7 @@
     document.querySelectorAll('.lang-btn').forEach(function(btn){
       btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
     });
+    try{ localStorage.setItem('fotraLang', lang); }catch(e){}
   }
 
   document.querySelectorAll('.lang-btn').forEach(function(btn){
@@ -216,6 +217,17 @@
       window.location.href = '../';
     }
   });
+
+  // Restore the language chosen on another FOTRA page (same origin,
+  // shared localStorage), defaulting to sl.
+  (function(){
+    var initialLang = 'sl';
+    try{
+      var stored = localStorage.getItem('fotraLang');
+      if(stored === 'en' || stored === 'sl'){ initialLang = stored; }
+    }catch(e){}
+    setLang(initialLang);
+  })();
 </script>
 
 </body>

@@ -545,6 +545,10 @@
 
   // ----- Language toggle -----
   var currentLang = 'sl';
+  try{
+    var storedLang = localStorage.getItem('fotraLang');
+    if(storedLang === 'en' || storedLang === 'sl'){ currentLang = storedLang; }
+  }catch(e){}
   var gameMsgState = 'idle'; // idle | playing | over
 
   var gameMsgs = {
@@ -571,6 +575,17 @@
     var termInputEl = document.getElementById('termInput');
     if(termInputEl){
       termInputEl.placeholder = termInputEl.getAttribute(lang === 'en' ? 'data-en-ph' : 'data-sl-ph');
+    }
+
+    try{ localStorage.setItem('fotraLang', lang); }catch(e){}
+
+    // norway.fotra.net reads ?lang= on load, so carry the current
+    // language across to that (different-origin) site too.
+    var norwayLink = document.querySelector('a.item[href^="https://norway.fotra.net"]');
+    if(norwayLink){
+      var norwayHref = 'https://norway.fotra.net?lang=' + lang;
+      norwayLink.href = norwayHref;
+      shortcuts.N = norwayHref;
     }
 
     updateGameMsg();
@@ -877,6 +892,10 @@
       window.location.href = href;
     }, 160);
   });
+
+  // Apply the language restored from localStorage (or the sl default)
+  // now that every element it touches (shortcuts, msgEl, termInput) exists.
+  setLang(currentLang);
 
 </script>
 
