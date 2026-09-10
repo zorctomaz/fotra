@@ -277,6 +277,14 @@
     color: var(--dos-blue-dark);
   }
 
+  .terminal{
+    margin-top: 1.3rem;
+    padding-top: 0.9rem;
+    border-top: 2px solid var(--cyan-dim);
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    color: var(--grey);
+  }
+
   .statusbar{
     margin-top: 1.3rem;
     padding-top: 0.9rem;
@@ -291,25 +299,46 @@
 
   .prompt{
     color: var(--white);
+    flex: none;
   }
 
-  .cursor{
-    display:inline-block;
-    width: 0.55em;
-    background: var(--white);
-    animation: blink 1s steps(1) infinite;
-    margin-left: 2px;
+  .term-log{
+    display:flex;
+    flex-direction:column;
+    gap: 2px;
+    max-height: 7.4em;
+    overflow-y: auto;
+    margin-bottom: 0.5rem;
   }
 
-  .cursor::after{ content:"\00a0"; }
-
-  @keyframes blink{
-    0%,49%{ opacity:1; }
-    50%,100%{ opacity:0; }
+  .term-log div{
+    white-space: pre-wrap;
+    word-break: break-word;
   }
 
-  @media (prefers-reduced-motion: reduce){
-    .cursor{ animation:none; }
+  .term-line{
+    display:flex;
+    align-items:center;
+    gap: 0.5rem;
+    cursor: text;
+  }
+
+  .term-input{
+    flex:1;
+    min-width: 0;
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 0;
+    color: var(--white);
+    font-family: 'VT323', monospace;
+    font-size: inherit;
+    caret-color: var(--white);
+  }
+
+  .term-input::placeholder{
+    color: var(--grey);
+    opacity: 0.85;
   }
 </style>
 </head>
@@ -352,9 +381,12 @@
       </button>
     </nav>
 
-    <div class="statusbar">
-      <span class="prompt">C:\FOTRA&gt;<span class="cursor"></span></span>
-      <span>PRESS A/N/J/V/F/X&nbsp;&nbsp;ESC=EXIT</span>
+    <div class="terminal" id="terminal">
+      <div class="term-log" id="termLog" aria-live="polite"></div>
+      <div class="term-line">
+        <label for="termInput" class="prompt">C:\FOTRA&gt;</label>
+        <input type="text" id="termInput" class="term-input" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Command input" placeholder="vnesi ukaz (HELP)" data-sl-ph="vnesi ukaz (HELP)" data-en-ph="type a command (HELP)">
+      </div>
     </div>
   </div>
 
@@ -536,6 +568,11 @@
       btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
     });
 
+    var termInputEl = document.getElementById('termInput');
+    if(termInputEl){
+      termInputEl.placeholder = termInputEl.getAttribute(lang === 'en' ? 'data-en-ph' : 'data-sl-ph');
+    }
+
     updateGameMsg();
   }
 
@@ -685,7 +722,109 @@
     });
   });
 
+  // ----- Terminal-style command input (C:\FOTRA>), CMD-like -----
+  var termLog = document.getElementById('termLog');
+  var termInput = document.getElementById('termInput');
+
+  var termHelp = {
+    sl: ['Ukazi: J=JADRANJE  N=NORVEŠKA  A=AI  V=VIDEO  F=FOTO  X=KAČA', 'DIR = izpiši meni    CLS = počisti zaslon    HELP = ta pomoč'],
+    en: ['Commands: J=SAILING  N=NORWAY  A=AI  V=VIDEO  F=PHOTO  X=SNAKE', 'DIR = list menu    CLS = clear screen    HELP = this help']
+  };
+
+  var termDir = {
+    sl: [' A   AI          -> ai/', ' N   NORVESKA    -> norway.fotra.net', ' J   JADRANJE    -> sail.fotra.net', ' V   VIDEO       -> video/', ' F   FOTO        -> instagram', ' X   IGRA: KACA'],
+    en: [' A   AI          -> ai/', ' N   NORWAY      -> norway.fotra.net', ' J   SAILING     -> sail.fotra.net', ' V   VIDEO       -> video/', ' F   PHOTO       -> instagram', ' X   GAME: SNAKE']
+  };
+
+  var termUnknown = {
+    sl: function(c){ return ["'" + c + "' ni prepoznan kot notranji ali zunanji ukaz,", 'izvedljiv program ali paketna datoteka.']; },
+    en: function(c){ return ["'" + c + "' is not recognized as an internal or external command,", 'operable program or batch file.']; }
+  };
+
+  var termAliases = {
+    JADRANJE:'J', SAIL:'J', SAILING:'J',
+    NORVESKA:'N', NORWAY:'N',
+    AI:'A',
+    VIDEO:'V',
+    FOTO:'F', PHOTO:'F'
+  };
+
+  function termPrint(lines){
+    lines.forEach(function(line){
+      var row = document.createElement('div');
+      row.textContent = line;
+      termLog.appendChild(row);
+    });
+    termLog.scrollTop = termLog.scrollHeight;
+  }
+
+  function termRunCommand(raw){
+    var cmd = raw.trim();
+    if(!cmd) return;
+    termPrint(['C:\\FOTRA>' + cmd]);
+
+    var norm = cmd.toUpperCase().replace(/Š/g,'S').replace(/Č/g,'C').replace(/Ž/g,'Z');
+
+    var routeKey = shortcuts[norm] ? norm : termAliases[norm];
+    if(routeKey){
+      termPrint([currentLang === 'sl' ? 'Odpiram ...' : 'Opening ...']);
+      window.setTimeout(function(){ window.location.href = shortcuts[routeKey]; }, 200);
+      return;
+    }
+
+    if(norm === 'X' || norm === 'SNAKE' || norm === 'KACA' || norm === 'IGRA'){
+      termPrint([currentLang === 'sl' ? 'Zaganjam KACA.EXE ...' : 'Launching SNAKE.EXE ...']);
+      window.setTimeout(openSnake, 200);
+      return;
+    }
+
+    if(norm === 'HELP' || norm === '?' || norm === 'POMOC'){
+      termPrint(termHelp[currentLang]);
+      return;
+    }
+
+    if(norm === 'DIR' || norm === 'LS'){
+      termPrint(termDir[currentLang]);
+      return;
+    }
+
+    if(norm === 'CLS' || norm === 'CLEAR'){
+      termLog.innerHTML = '';
+      return;
+    }
+
+    if(norm === 'VER'){
+      termPrint(['FOTRA.EXE [Version 1.0]']);
+      return;
+    }
+
+    if(norm.indexOf('ECHO ') === 0){
+      termPrint([cmd.slice(5)]);
+      return;
+    }
+
+    termPrint(termUnknown[currentLang](cmd));
+  }
+
+  termInput.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+      e.preventDefault();
+      termRunCommand(termInput.value);
+      termInput.value = '';
+    }
+  });
+
+  document.getElementById('terminal').addEventListener('click', function(){
+    termInput.focus();
+  });
+
+  termPrint([currentLang === 'sl' ? 'Vtipkaj HELP za seznam ukazov.' : 'Type HELP for a list of commands.']);
+
   document.addEventListener('keydown', function(e){
+    if(e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')){
+      return;
+    }
+
     var snakeOpen = !snakeScreen.hidden;
 
     if(snakeOpen){
