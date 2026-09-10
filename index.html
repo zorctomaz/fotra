@@ -193,6 +193,41 @@
     image-rendering: pixelated;
   }
 
+  .dpad{
+    display:grid;
+    grid-template-columns: repeat(3, clamp(44px, 12vw, 54px));
+    grid-template-rows: repeat(2, clamp(44px, 12vw, 54px));
+    gap: 6px;
+    justify-content:center;
+    margin: 0.9rem auto 0;
+    -webkit-user-select:none;
+    user-select:none;
+  }
+
+  .dpad-btn{
+    font-family:'VT323', monospace;
+    background: var(--dos-blue);
+    color: var(--cyan);
+    border: 2px solid var(--cyan);
+    font-size: clamp(1.3rem, 5vw, 1.7rem);
+    line-height:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    touch-action: manipulation;
+  }
+
+  .dpad-btn:active{
+    background: var(--cyan);
+    color: var(--black);
+  }
+
+  .dpad-up{ grid-column:2; grid-row:1; }
+  .dpad-left{ grid-column:1; grid-row:2; }
+  .dpad-down{ grid-column:2; grid-row:2; }
+  .dpad-right{ grid-column:3; grid-row:2; }
+
   a.item .key{
     color: var(--yellow);
     font-weight:normal;
@@ -315,6 +350,13 @@
       <canvas id="snake-canvas" width="220" height="220"></canvas>
     </div>
 
+    <div class="dpad" role="group" aria-label="Snake controls">
+      <button type="button" class="dpad-btn dpad-up" data-dir="up" aria-label="Up">&#9650;</button>
+      <button type="button" class="dpad-btn dpad-left" data-dir="left" aria-label="Left">&#9664;</button>
+      <button type="button" class="dpad-btn dpad-down" data-dir="down" aria-label="Down">&#9660;</button>
+      <button type="button" class="dpad-btn dpad-right" data-dir="right" aria-label="Right">&#9654;</button>
+    </div>
+
     <div class="statusbar">
       <span class="prompt" id="snake-msg">PUŠČICE = PREMIK</span>
       <span data-sl="ESC=NAZAJ" data-en="ESC=BACK">ESC=NAZAJ</span>
@@ -435,8 +477,8 @@
   var gameMsgState = 'idle'; // idle | playing | over
 
   var gameMsgs = {
-    sl: { idle: 'PUŠČICE = PREMIK', playing: 'IGRA SE...', over: 'KONEC - ENTER=ZNOVA' },
-    en: { idle: 'ARROWS = MOVE', playing: 'PLAYING...', over: 'GAME OVER - ENTER=RESTART' }
+    sl: { idle: 'PUŠČICE/GUMBI = PREMIK', playing: 'IGRA SE...', over: 'KONEC - ENTER/GUMB=ZNOVA' },
+    en: { idle: 'ARROWS/BTNS = MOVE', playing: 'PLAYING...', over: 'GAME OVER - ENTER/BTN=RESTART' }
   };
 
   function updateGameMsg(){
@@ -567,6 +609,25 @@
 
   snakeBtn.addEventListener('click', openSnake);
 
+  // Shared by keyboard arrows and the on-screen D-pad (for touch/mobile).
+  function applyDir(d){
+    if(gameOver){ return; }
+    // ignore reversing directly into itself
+    if(dir.x + d.x !== 0 || dir.y + d.y !== 0){
+      nextDir = d;
+    }
+    startGame();
+  }
+
+  var dirMap = { up:{x:0,y:-1}, down:{x:0,y:1}, left:{x:-1,y:0}, right:{x:1,y:0} };
+  document.querySelectorAll('.dpad-btn').forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      if(gameOver){ resetGame(); return; }
+      applyDir(dirMap[btn.getAttribute('data-dir')]);
+    });
+  });
+
   document.addEventListener('keydown', function(e){
     var snakeOpen = !snakeScreen.hidden;
 
@@ -584,12 +645,7 @@
 
       if(arrowMap[e.key]){
         e.preventDefault();
-        var d = arrowMap[e.key];
-        // ignore reversing directly into itself
-        if(dir.x + d.x !== 0 || dir.y + d.y !== 0){
-          nextDir = d;
-        }
-        startGame();
+        applyDir(arrowMap[e.key]);
         return;
       }
 
