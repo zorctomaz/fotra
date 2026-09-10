@@ -194,14 +194,23 @@
   }
 
   .dpad{
-    display:grid;
-    grid-template-columns: repeat(3, clamp(44px, 12vw, 54px));
-    grid-template-rows: repeat(2, clamp(44px, 12vw, 54px));
-    gap: 6px;
-    justify-content:center;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    width:100%;
+    max-width: min(100%, 320px);
     margin: 0.9rem auto 0;
     -webkit-user-select:none;
     user-select:none;
+  }
+
+  .dpad-group{
+    display:flex;
+    gap: 8px;
+  }
+
+  .dpad-group-ud{
+    flex-direction:column;
   }
 
   .dpad-btn{
@@ -211,6 +220,8 @@
     border: 2px solid var(--cyan);
     font-size: clamp(1.3rem, 5vw, 1.7rem);
     line-height:1;
+    width: clamp(44px, 12vw, 54px);
+    height: clamp(44px, 12vw, 54px);
     display:flex;
     align-items:center;
     justify-content:center;
@@ -222,11 +233,6 @@
     background: var(--cyan);
     color: var(--black);
   }
-
-  .dpad-up{ grid-column:2; grid-row:1; }
-  .dpad-left{ grid-column:1; grid-row:2; }
-  .dpad-down{ grid-column:2; grid-row:2; }
-  .dpad-right{ grid-column:3; grid-row:2; }
 
   a.item .key{
     color: var(--yellow);
@@ -351,10 +357,14 @@
     </div>
 
     <div class="dpad" role="group" aria-label="Snake controls">
-      <button type="button" class="dpad-btn dpad-up" data-dir="up" aria-label="Up">&#9650;</button>
-      <button type="button" class="dpad-btn dpad-left" data-dir="left" aria-label="Left">&#9664;</button>
-      <button type="button" class="dpad-btn dpad-down" data-dir="down" aria-label="Down">&#9660;</button>
-      <button type="button" class="dpad-btn dpad-right" data-dir="right" aria-label="Right">&#9654;</button>
+      <div class="dpad-group dpad-group-lr">
+        <button type="button" class="dpad-btn" data-dir="left" aria-label="Left">&#9664;</button>
+        <button type="button" class="dpad-btn" data-dir="right" aria-label="Right">&#9654;</button>
+      </div>
+      <div class="dpad-group dpad-group-ud">
+        <button type="button" class="dpad-btn" data-dir="up" aria-label="Up">&#9650;</button>
+        <button type="button" class="dpad-btn" data-dir="down" aria-label="Down">&#9660;</button>
+      </div>
     </div>
 
     <div class="statusbar">
@@ -594,18 +604,36 @@
     loopId = setInterval(tick, 120);
   }
 
+  var snakeHistoryPushed = false;
+
   function openSnake(){
     mainScreen.hidden = true;
     snakeScreen.hidden = false;
     resetGame();
+    // Push a history entry so a browser back-gesture returns to the menu
+    // screen instead of leaving the site entirely.
+    history.pushState({ fotraScreen:'snake' }, '');
+    snakeHistoryPushed = true;
   }
 
-  function closeSnake(){
+  function closeSnake(viaPopstate){
     clearInterval(loopId);
     snakeScreen.hidden = true;
     mainScreen.hidden = false;
     snakeBtn.focus({ preventScroll:true });
+    if(snakeHistoryPushed && !viaPopstate){
+      snakeHistoryPushed = false;
+      history.back(); // consume the pushed state so back-navigation stays clean
+    } else {
+      snakeHistoryPushed = false;
+    }
   }
+
+  window.addEventListener('popstate', function(){
+    if(!snakeScreen.hidden){
+      closeSnake(true);
+    }
+  });
 
   snakeBtn.addEventListener('click', openSnake);
 
