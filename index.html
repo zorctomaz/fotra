@@ -322,7 +322,7 @@
         <button type="button" class="lang-btn" data-lang="en">EN</button>
       </div>
       <p class="ascii-title">FOTRA</p>
-      <p class="sub"><span data-sl="JADRANJE" data-en="SAILING">JADRANJE</span><span class="sep">·</span><span data-sl="NORVEŠKA" data-en="NORWAY">NORVEŠKA</span><span class="sep">·</span><span data-sl="VIDEO" data-en="VIDEO">VIDEO</span><span class="sep">·</span><span data-sl="FOTO" data-en="PHOTO">FOTO</span></p>
+      <p class="sub"><span data-sl="JADRANJE" data-en="SAILING">JADRANJE</span><span class="sep">·</span><span data-sl="NORVEŠKA" data-en="NORWAY">NORVEŠKA</span><span class="sep">·</span><span data-sl="AI" data-en="AI">AI</span><span class="sep">·</span><span data-sl="VIDEO" data-en="VIDEO">VIDEO</span><span class="sep">·</span><span data-sl="FOTO" data-en="PHOTO">FOTO</span></p>
     </div>
 
     <nav class="menu">
@@ -333,6 +333,10 @@
       <a class="item" href="https://norway.fotra.net">
         <span class="sprite-wrap"><svg id="spr-norway" viewBox="0 0 12 12"></svg></span>
         <span><span class="key">[N]</span> <span data-sl="NORVEŠKA" data-en="NORWAY">NORVEŠKA</span></span>
+      </a>
+      <a class="item" href="ai/">
+        <span class="sprite-wrap"><svg id="spr-ai" viewBox="0 0 12 12"></svg></span>
+        <span><span class="key">[A]</span> <span data-sl="AI" data-en="AI">AI</span></span>
       </a>
       <a class="item" href="video/">
         <span class="sprite-wrap"><svg id="spr-video" viewBox="0 0 12 12"></svg></span>
@@ -350,7 +354,7 @@
 
     <div class="statusbar">
       <span class="prompt">C:\FOTRA&gt;<span class="cursor"></span></span>
-      <span>PRESS J/N/V/F/X&nbsp;&nbsp;ESC=EXIT</span>
+      <span>PRESS J/N/A/V/F/X&nbsp;&nbsp;ESC=EXIT</span>
     </div>
   </div>
 
@@ -436,6 +440,22 @@
   ];
   var norwayFlagPalette = { R:"#BA0C2F", W:"#FFFFFF", B:"#00205B" };
 
+  var aiGrid = [
+    "............",
+    ".K........K.",
+    "KKCCCCCCCCKK",
+    "K.CWWWWWWC.K",
+    "K.CWKKKKWC.K",
+    "K.CWKYYKWC.K",
+    "K.CWKYYKWC.K",
+    "K.CWKKKKWC.K",
+    "K.CWWWWWWC.K",
+    "KKCCCCCCCCKK",
+    ".K........K.",
+    "............"
+  ];
+  var aiPalette = { K:"#000000", C:"#00AAAA", W:"#FFFFFF", Y:"#FFFF55" };
+
   var videoGrid = [
     "............",
     ".KKKKKKKK...",
@@ -486,6 +506,7 @@
 
   drawSprite('spr-boat', boatGrid, boatPalette);
   drawSprite('spr-norway', norwayFlagGrid, norwayFlagPalette);
+  drawSprite('spr-ai', aiGrid, aiPalette);
   drawSprite('spr-video', videoGrid, videoPalette);
   drawSprite('spr-camera', cameraGrid, cameraPalette);
   drawSprite('spr-snake', snakeGrid, snakePalette);
@@ -525,7 +546,7 @@
   });
 
   // ----- Keyboard shortcuts: press a letter to jump straight to that page -----
-  var shortcuts = { J: 'https://sail.fotra.net', N: 'https://norway.fotra.net', V: 'video/', F: 'https://www.instagram.com/dart__ejder/' };
+  var shortcuts = { J: 'https://sail.fotra.net', N: 'https://norway.fotra.net', A: 'ai/', V: 'video/', F: 'https://www.instagram.com/dart__ejder/' };
 
   var mainScreen = document.querySelector('.screen:not(.snake-screen)');
   var snakeScreen = document.getElementById('snake-screen');
