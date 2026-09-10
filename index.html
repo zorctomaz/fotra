@@ -205,23 +205,15 @@
   }
 
   .dpad{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+    display:grid;
+    grid-template-columns: repeat(3, clamp(44px, 12vw, 54px));
+    grid-template-rows: repeat(3, clamp(44px, 12vw, 54px));
+    gap: 14px;
+    justify-content:center;
     width:100%;
-    max-width: min(100%, 320px);
-    margin: 0.9rem auto 0;
+    margin: 1.1rem auto 0;
     -webkit-user-select:none;
     user-select:none;
-  }
-
-  .dpad-group{
-    display:flex;
-    gap: 8px;
-  }
-
-  .dpad-group-ud{
-    flex-direction:column;
   }
 
   .dpad-btn{
@@ -231,14 +223,17 @@
     border: 2px solid var(--cyan);
     font-size: clamp(1.3rem, 5vw, 1.7rem);
     line-height:1;
-    width: clamp(44px, 12vw, 54px);
-    height: clamp(44px, 12vw, 54px);
     display:flex;
     align-items:center;
     justify-content:center;
     cursor:pointer;
     touch-action: manipulation;
   }
+
+  .dpad-up{ grid-column:2; grid-row:1; }
+  .dpad-left{ grid-column:1; grid-row:2; }
+  .dpad-right{ grid-column:3; grid-row:2; }
+  .dpad-down{ grid-column:2; grid-row:3; }
 
   .dpad-btn:active{
     background: var(--cyan);
@@ -404,14 +399,10 @@
     </div>
 
     <div class="dpad" role="group" aria-label="Snake controls">
-      <div class="dpad-group dpad-group-lr">
-        <button type="button" class="dpad-btn" data-dir="left" aria-label="Left">&#9664;</button>
-        <button type="button" class="dpad-btn" data-dir="right" aria-label="Right">&#9654;</button>
-      </div>
-      <div class="dpad-group dpad-group-ud">
-        <button type="button" class="dpad-btn" data-dir="up" aria-label="Up">&#9650;</button>
-        <button type="button" class="dpad-btn" data-dir="down" aria-label="Down">&#9660;</button>
-      </div>
+      <button type="button" class="dpad-btn dpad-up" data-dir="up" aria-label="Up">&#9650;</button>
+      <button type="button" class="dpad-btn dpad-left" data-dir="left" aria-label="Left">&#9664;</button>
+      <button type="button" class="dpad-btn dpad-right" data-dir="right" aria-label="Right">&#9654;</button>
+      <button type="button" class="dpad-btn dpad-down" data-dir="down" aria-label="Down">&#9660;</button>
     </div>
 
     <div class="statusbar">
