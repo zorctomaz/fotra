@@ -355,7 +355,7 @@
     </div>
 
     <nav class="menu">
-      <a class="item" href="ai/">
+      <a class="item" href="https://ai.fotra.net">
         <span class="sprite-wrap"><svg id="spr-ai" viewBox="0 0 12 12"></svg></span>
         <span><span class="key">[A]</span> <span data-sl="AI" data-en="AI">AI</span></span>
       </a>
@@ -367,7 +367,7 @@
         <span class="sprite-wrap"><svg id="spr-boat" viewBox="0 0 12 12"></svg></span>
         <span><span class="key">[J]</span> <span data-sl="JADRANJE" data-en="SAILING">JADRANJE</span></span>
       </a>
-      <a class="item" href="video/">
+      <a class="item" href="https://video.fotra.net">
         <span class="sprite-wrap"><svg id="spr-video" viewBox="0 0 12 12"></svg></span>
         <span><span class="key">[V]</span> <span data-sl="VIDEO" data-en="VIDEO">VIDEO</span></span>
       </a>
@@ -579,14 +579,24 @@
 
     try{ localStorage.setItem('fotraLang', lang); }catch(e){}
 
-    // norway.fotra.net reads ?lang= on load, so carry the current
-    // language across to that (different-origin) site too.
-    var norwayLink = document.querySelector('a.item[href^="https://norway.fotra.net"]');
-    if(norwayLink){
-      var norwayHref = 'https://norway.fotra.net?lang=' + lang;
-      norwayLink.href = norwayHref;
-      shortcuts.N = norwayHref;
-    }
+    // norway.fotra.net, ai.fotra.net and video.fotra.net each read ?lang=
+    // on load, so carry the current language across to those
+    // different-origin sites too (their own localStorage isn't shared
+    // with this one).
+    var langLinkedOrigins = {
+      N: 'https://norway.fotra.net',
+      A: 'https://ai.fotra.net',
+      V: 'https://video.fotra.net'
+    };
+    Object.keys(langLinkedOrigins).forEach(function(key){
+      var origin = langLinkedOrigins[key];
+      var el = document.querySelector('a.item[href^="' + origin + '"]');
+      if(el){
+        var href = origin + '?lang=' + lang;
+        el.href = href;
+        shortcuts[key] = href;
+      }
+    });
 
     updateGameMsg();
   }
@@ -598,7 +608,7 @@
   });
 
   // ----- Keyboard shortcuts: press a letter to jump straight to that page -----
-  var shortcuts = { J: 'https://sail.fotra.net', N: 'https://norway.fotra.net', A: 'ai/', V: 'video/', F: 'https://www.instagram.com/dart__ejder/' };
+  var shortcuts = { J: 'https://sail.fotra.net', N: 'https://norway.fotra.net', A: 'https://ai.fotra.net', V: 'https://video.fotra.net', F: 'https://www.instagram.com/dart__ejder/' };
 
   var mainScreen = document.querySelector('.screen:not(.snake-screen)');
   var snakeScreen = document.getElementById('snake-screen');
