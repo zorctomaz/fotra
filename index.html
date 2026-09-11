@@ -362,7 +362,10 @@
         <span><span class="key">[N]</span> <span data-sl="NORVEŠKA" data-en="NORWAY">NORVEŠKA</span></span>
       </a>
       <a class="item" href="https://jadranje.fotra.net">
-        <span class="sprite-wrap"><svg id="spr-boat" viewBox="0 0 12 12"></svg></span>
+        <span class="sprite-wrap">
+          <!-- jadranje.fotra.net's own favicon artwork, not a pixel sprite -->
+          <svg viewBox="0 0 24 24" style="shape-rendering:auto;"><rect width="24" height="24" fill="#0000AA"/><path d="M12 3v10M12 4l5.5 8H12M4 17h16l-2.5 4h-11z" fill="none" stroke="#FFFF55" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
         <span><span class="key">[J]</span> <span data-sl="JADRANJE" data-en="SAILING">JADRANJE</span></span>
       </a>
       <a class="item" href="https://video.fotra.net">
@@ -433,22 +436,6 @@
     }
     svg.appendChild(frag);
   }
-
-  var boatGrid = [
-    "............",
-    ".....K......",
-    "....WK......",
-    "...WWK......",
-    "..WWWK......",
-    ".WWWWK......",
-    "WWWWWK......",
-    ".....K......",
-    "....BBBB....",
-    "...BBBBBB...",
-    "..BBBBBBBB..",
-    "NNNNNNNNNNNN"
-  ];
-  var boatPalette = { K:"#000000", W:"#FFFFFF", B:"#AA5500", N:"#00AAAA" };
 
   var norwayFlagGrid = [
     "RRRWBWRRRRRR",
@@ -530,7 +517,6 @@
   ];
   var snakePalette = { G:"#55FF55", R:"#FF5555" };
 
-  drawSprite('spr-boat', boatGrid, boatPalette);
   drawSprite('spr-norway', norwayFlagGrid, norwayFlagPalette);
   drawSprite('spr-ai', aiGrid, aiPalette);
   drawSprite('spr-video', videoGrid, videoPalette);
