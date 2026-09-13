@@ -559,6 +559,14 @@
 
     try{ localStorage.setItem('fotraLang', lang); }catch(e){}
 
+    // Keep the address bar's ?lang= in sync so the current language survives
+    // a refresh, bookmark or share — without adding a back-button entry.
+    try{
+      var selfUrl = new URL(window.location.href);
+      selfUrl.searchParams.set('lang', lang);
+      history.replaceState(history.state, '', selfUrl);
+    }catch(e){}
+
     // norway.fotra.net, ai.fotra.net, jadranje.fotra.net and video.fotra.net
     // each read ?lang= on load, so carry the current language across to
     // those different-origin sites too (their own localStorage isn't
