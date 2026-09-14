@@ -120,10 +120,14 @@
     position:relative;
   }
 
+  .titlebar-controls{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-top: 0.9rem;
+  }
+
   .lang-toggle{
-    position:absolute;
-    top: 0;
-    right: 0;
     display:flex;
   }
 
@@ -490,12 +494,14 @@
 
   <div class="screen">
     <div class="titlebar">
-      <div class="lang-toggle" role="group" aria-label="Language">
-        <button type="button" class="lang-btn active" data-lang="sl">SI</button>
-        <button type="button" class="lang-btn" data-lang="en">EN</button>
-      </div>
       <p class="ascii-title">FOTRA</p>
       <p class="sub"><span data-sl="AI" data-en="AI">AI</span><span class="sep">·</span><span data-sl="NORVEŠKA" data-en="NORWAY">NORVEŠKA</span><span class="sep">·</span><span data-sl="JADRANJE" data-en="SAILING">JADRANJE</span><span class="sep">·</span><span data-sl="VIDEO" data-en="VIDEO">VIDEO</span><span class="sep">·</span><span data-sl="FOTO" data-en="PHOTO">FOTO</span></p>
+      <div class="titlebar-controls">
+        <div class="lang-toggle" role="group" aria-label="Language">
+          <button type="button" class="lang-btn active" data-lang="sl">SI</button>
+          <button type="button" class="lang-btn" data-lang="en">EN</button>
+        </div>
+      </div>
     </div>
 
     <nav class="menu">
