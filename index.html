@@ -720,10 +720,17 @@
   drawSprite('spr-snake', snakeGrid, snakePalette);
 
   // ----- Language toggle -----
+  // A subpage (ai/norway/jadranje/video.fotra.net) that had its language
+  // switched appends ?lang= to its link back here, so a returning visitor's
+  // choice carries over even though localStorage isn't shared across those
+  // different origins. ?lang= takes priority over this site's own stored
+  // preference, matching the same urlLang > storedLang pattern the subpages use.
   var currentLang = 'sl';
   try{
     var storedLang = localStorage.getItem('fotraLang');
     if(storedLang === 'en' || storedLang === 'sl'){ currentLang = storedLang; }
+    var urlLang = new URLSearchParams(window.location.search).get('lang');
+    if(urlLang === 'en' || urlLang === 'sl'){ currentLang = urlLang; }
   }catch(e){}
   var gameMsgState = 'idle'; // idle | playing | over
 
