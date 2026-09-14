@@ -125,7 +125,6 @@
     top: 0;
     right: 0;
     display:flex;
-    border: 2px solid var(--cyan);
   }
 
   .lang-btn{
@@ -139,13 +138,10 @@
     letter-spacing: 0.05em;
   }
 
-  .lang-btn + .lang-btn{
-    border-left: 2px solid var(--cyan);
-  }
-
+  /* Only the language you can switch TO is shown — the current one stays
+     in the DOM (for the click handler / a11y) but hidden. */
   .lang-btn.active{
-    background: var(--cyan);
-    color: var(--black);
+    display:none;
   }
 
   .ascii-title{
