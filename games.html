@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+<meta charset="UTF-8">
+<script>
+  if(location.hostname === 'www.fotra.net'){
+    location.replace('https://fotra.net' + location.pathname + location.search + location.hash);
+  }
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<title>IGRE — FOTRA</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+  :root{
+    --dos-blue: #0000AA;
+    --dos-blue-dark: #000077;
+    --cyan: #55FFFF;
+    --cyan-dim: #00AAAA;
+    --white: #FFFFFF;
+    --yellow: #FFFF55;
+    --grey: #AAAAAA;
+    --black: #000000;
+  }
+
+  *{ box-sizing:border-box; }
+
+  html,body{
+    margin:0;
+    padding:0;
+    width:100%;
+    overflow-x:hidden;
+    background: var(--dos-blue);
+    color: var(--white);
+    font-family: 'VT323', monospace;
+  }
+
+  body{
+    height:100svh;
+    width:100vw;
+    display:flex;
+    align-items:stretch;
+    justify-content:stretch;
+    padding:0;
+    position:relative;
+  }
+
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(0,0,0,0.18) 0px,
+      rgba(0,0,0,0.18) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    z-index: 5;
+  }
+
+  body::after{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.35) 100%);
+    z-index: 4;
+    animation: flicker 6s infinite steps(30);
+  }
+
+  @keyframes flicker{
+    0%,100%{ opacity:1; }
+    50%{ opacity:0.97; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    body::after{ animation:none; }
+  }
+
+  .screen{
+    width:100%;
+    height:100%;
+    max-width:none;
+    border: 6px double var(--cyan);
+    background: var(--dos-blue);
+    padding: clamp(1rem, 4vw, 1.8rem) clamp(1.2rem, 4vw, 2.2rem) clamp(1.4rem, 4vw, 2rem);
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    overflow-y:auto;
+  }
+
+  .screen[hidden]{
+    display:none;
+  }
+
+  .screen > *{
+    width:100%;
+    max-width: 640px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+
+  .titlebar{
+    text-align:center;
+    border-bottom: 2px solid var(--cyan-dim);
+    padding-bottom: 0.9rem;
+    margin-bottom: 1.1rem;
+    position:relative;
+  }
+
+  .titlebar-controls{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap: 4px;
+    margin-top: 0.9rem;
+  }
+
+  .icon-links{
+    display:inline-flex;
+    align-items:center;
+    gap:14px;
+  }
+
+  .icon-links a{
+    display:inline-flex;
+    color: var(--cyan);
+    text-decoration:none;
+    transition: color .15s ease, transform .15s ease;
+  }
+
+  .icon-links a svg{ width:20px; height:20px; flex:none; }
+
+  .icon-links a:hover, .icon-links a:focus-visible{ color: var(--yellow); transform:translateY(-1px); }
+
+  .lang-toggle{
+    display:flex;
+  }
+
+  .lang-btn{
+    font-family:'VT323', monospace;
+    background: var(--dos-blue);
+    color: var(--cyan);
+    border: none;
+    padding: 0.2rem 0.6rem;
+    font-size: clamp(0.95rem, 3vw, 1.15rem);
+    cursor:pointer;
+    letter-spacing: 0.05em;
+  }
+
+  /* Only the language you can switch TO is shown — the current one stays
+     in the DOM (for the click handler / a11y) but hidden. */
+  .lang-btn.active{
+    display:none;
+  }
+
+  .ascii-title{
+    font-size: clamp(2.6rem, 11vw, 4.2rem);
+    line-height:1;
+    letter-spacing: 0.12em;
+    color: var(--yellow);
+    text-shadow: 0 0 6px rgba(255,255,85,0.5);
+    margin: 0 0 0.35rem;
+  }
+
+  .sub{
+    font-size: clamp(1.05rem, 3.2vw, 1.3rem);
+    color: var(--cyan);
+    letter-spacing: 0.08em;
+    margin:0;
+  }
+
+  nav.menu{
+    display:flex;
+    flex-direction:column;
+    gap: 0.5rem;
+  }
+
+  a.item, button.item{
+    display:flex;
+    align-items:center;
+    gap: 0.9rem;
+    text-decoration:none;
+    color: var(--white);
+    padding: 0.55rem 0.7rem;
+    border: 2px solid transparent;
+    font-size: clamp(1.2rem, 4vw, 1.5rem);
+    letter-spacing: 0.04em;
+    background:none;
+    font-family:'VT323', monospace;
+    width:100%;
+    text-align:left;
+    cursor:pointer;
+  }
+
+  .canvas-wrap{
+    display:flex;
+    justify-content:center;
+    padding: 0.4rem 0;
+  }
+
+  #snake-canvas{
+    background: var(--black);
+    border: 3px double var(--cyan);
+    width: min(100%, 320px);
+    height: auto;
+    aspect-ratio: 1 / 1;
+    image-rendering: pixelated;
+  }
+
+  .dpad{
+    display:grid;
+    grid-template-columns: repeat(3, clamp(44px, 12vw, 54px));
+    grid-template-rows: repeat(3, clamp(44px, 12vw, 54px));
+    gap: 14px;
+    justify-content:center;
+    width:100%;
+    margin: 1.1rem auto 0;
+    -webkit-user-select:none;
+    user-select:none;
+  }
+
+  .dpad-btn{
+    font-family:'VT323', monospace;
+    background: var(--dos-blue);
+    color: var(--cyan);
+    border: 2px solid var(--cyan);
+    font-size: clamp(1.3rem, 5vw, 1.7rem);
+    line-height:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    touch-action: manipulation;
+  }
+
+  .dpad-up{ grid-column:2; grid-row:1; }
+  .dpad-left{ grid-column:1; grid-row:2; }
+  .dpad-right{ grid-column:3; grid-row:2; }
+  .dpad-down{ grid-column:2; grid-row:3; }
+
+  .dpad-btn:active{
+    background: var(--cyan);
+    color: var(--black);
+  }
+
+  .diff-row{
+    display:flex;
+    gap: 0.5rem;
+    justify-content:center;
+    flex-wrap:wrap;
+    margin: 0 0 0.9rem;
+  }
+
+  .diff-btn{
+    font-family:'VT323', monospace;
+    background: var(--dos-blue);
+    color: var(--cyan);
+    border: 2px solid var(--cyan);
+    padding: 0.3rem 0.8rem;
+    font-size: clamp(0.95rem, 3.2vw, 1.15rem);
+    cursor:pointer;
+    letter-spacing: 0.04em;
+  }
+
+  .diff-btn.active{
+    background: var(--cyan);
+    color: var(--black);
+  }
+
+  .sudoku-wrap{
+    display:flex;
+    justify-content:center;
+    padding: 0.2rem 0;
+  }
+
+  .sudoku-grid{
+    display:grid;
+    grid-template-columns: repeat(9, 1fr);
+    grid-template-rows: repeat(9, 1fr);
+    width: min(100%, 380px);
+    aspect-ratio: 1 / 1;
+    border: 3px double var(--cyan);
+    background: var(--black);
+  }
+
+  .sudoku-cell{
+    font-family:'VT323', monospace;
+    background: var(--dos-blue-dark);
+    color: var(--white);
+    border: 1px solid var(--cyan-dim);
+    font-size: clamp(1rem, 4.5vw, 1.5rem);
+    line-height:1;
+    padding:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    touch-action: manipulation;
+  }
+
+  .sudoku-cell.given{
+    color: var(--grey);
+    cursor:default;
+  }
+
+  .sudoku-cell.selected{
+    background: var(--dos-blue);
+    outline: 2px solid var(--yellow);
+    outline-offset: -2px;
+  }
+
+  .sudoku-cell.conflict{
+    color: #FF5555;
+  }
+
+  .sudoku-cell.box-r{ border-right: 2px solid var(--cyan); }
+  .sudoku-cell.box-b{ border-bottom: 2px solid var(--cyan); }
+
+  .numpad{
+    display:flex;
+    flex-wrap:wrap;
+    gap: 8px;
+    justify-content:center;
+    width:100%;
+    margin: 1rem auto 0;
+    -webkit-user-select:none;
+    user-select:none;
+  }
+
+  .num-btn{
+    font-family:'VT323', monospace;
+    background: var(--dos-blue);
+    color: var(--cyan);
+    border: 2px solid var(--cyan);
+    width: clamp(34px, 9vw, 42px);
+    height: clamp(34px, 9vw, 42px);
+    font-size: clamp(1.1rem, 4vw, 1.4rem);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    touch-action: manipulation;
+  }
+
+  .num-btn:active{
+    background: var(--cyan);
+    color: var(--black);
+  }
+
+  .num-clear{
+    color: #FF5555;
+    border-color: #FF5555;
+  }
+
+  .num-clear:active{
+    background: #FF5555;
+    color: var(--black);
+  }
+
+  .new-game-btn{
+    font-family:'VT323', monospace;
+    background: var(--dos-blue);
+    color: var(--yellow);
+    border: 2px solid var(--yellow);
+    padding: 0.2rem 0.7rem;
+    font-size: clamp(0.95rem, 3.2vw, 1.1rem);
+    cursor:pointer;
+    letter-spacing: 0.03em;
+  }
+
+  .new-game-btn:hover,
+  .new-game-btn:active{
+    background: var(--yellow);
+    color: var(--black);
+  }
+
+  a.item .key,
+  button.item .key{
+    color: var(--yellow);
+    font-weight:normal;
+  }
+
+  a.item .sprite-wrap,
+  button.item .sprite-wrap{
+    width: clamp(30px, 8vw, 40px);
+    height: clamp(30px, 8vw, 40px);
+    flex-shrink:0;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+
+  a.item .sprite-wrap svg,
+  button.item .sprite-wrap svg{
+    width:100%;
+    height:100%;
+    display:block;
+    shape-rendering: crispEdges;
+  }
+
+  a.item:hover,
+  a.item:focus-visible,
+  a.item.keyed,
+  button.item:hover,
+  button.item:focus-visible,
+  button.item.keyed{
+    background: var(--cyan);
+    color: var(--black);
+    border-color: var(--white);
+    outline: none;
+  }
+
+  a.item:hover .key,
+  a.item:focus-visible .key,
+  a.item.keyed .key,
+  button.item:hover .key,
+  button.item:focus-visible .key,
+  button.item.keyed .key{
+    color: var(--dos-blue-dark);
+  }
+
+  .statusbar{
+    margin-top: 1.3rem;
+    padding-top: 0.9rem;
+    border-top: 2px solid var(--cyan-dim);
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    color: var(--grey);
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap: 0.4rem;
+  }
+
+  .prompt{
+    color: var(--white);
+    flex: none;
+  }
+</style>
+</head>
+<body>
+
+  <div class="screen" id="menu-screen">
+    <div class="titlebar">
+      <p class="ascii-title" data-sl="IGRE" data-en="GAMES">IGRE</p>
+      <p class="sub" data-sl="IZBERI IGRO" data-en="CHOOSE A GAME">IZBERI IGRO</p>
+      <div class="titlebar-controls">
+        <div class="icon-links">
+          <a href="https://fotra.net/" class="home-btn" aria-label="fotra.net" title="fotra.net">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-5h4v5h4a1 1 0 0 0 1-1v-9"/></svg>
+          </a>
+          <a href="mailto:info@fotra.net" class="email-btn" aria-label="info@fotra.net" title="info@fotra.net">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+          </a>
+        </div>
+        <div class="lang-toggle" role="group" aria-label="Language">
+          <button type="button" class="lang-btn active" data-lang="sl">SI</button>
+          <button type="button" class="lang-btn" data-lang="en">EN</button>
+        </div>
+      </div>
+    </div>
+
+    <nav class="menu">
+      <button class="item" id="snake-btn" type="button">
+        <span class="sprite-wrap"><svg id="spr-snake" viewBox="0 0 12 12"></svg></span>
+        <span><span class="key">[X]</span> <span data-sl="KAČA" data-en="SNAKE">KAČA</span></span>
+      </button>
+      <button class="item" id="sudoku-btn" type="button">
+        <span class="sprite-wrap"><svg id="spr-sudoku" viewBox="0 0 12 12"></svg></span>
+        <span><span class="key">[S]</span> <span data-sl="SUDOKU" data-en="SUDOKU">SUDOKU</span></span>
+      </button>
+    </nav>
+
+    <div class="statusbar">
+      <span data-sl="ESC=NAZAJ NA FOTRA.NET" data-en="ESC=BACK TO FOTRA.NET">ESC=NAZAJ NA FOTRA.NET</span>
+    </div>
+  </div>
+
+  <div class="screen snake-screen" id="snake-screen" hidden>
+    <div class="titlebar">
+      <p class="ascii-title" id="snake-title" style="font-size:clamp(1.8rem,7vw,2.6rem);" data-sl="KAČA" data-en="SNAKE">KAČA</p>
+      <p class="sub" id="snake-score">SCORE: 0</p>
+    </div>
+
+    <div class="canvas-wrap">
+      <canvas id="snake-canvas" width="220" height="220"></canvas>
+    </div>
+
+    <div class="dpad" role="group" aria-label="Snake controls">
+      <button type="button" class="dpad-btn dpad-up" data-dir="up" aria-label="Up">&#9650;</button>
+      <button type="button" class="dpad-btn dpad-left" data-dir="left" aria-label="Left">&#9664;</button>
+      <button type="button" class="dpad-btn dpad-right" data-dir="right" aria-label="Right">&#9654;</button>
+      <button type="button" class="dpad-btn dpad-down" data-dir="down" aria-label="Down">&#9660;</button>
+    </div>
+
+    <div class="statusbar">
+      <span class="prompt" id="snake-msg">PUŠČICE = PREMIK</span>
+      <span data-sl="ESC=NAZAJ" data-en="ESC=BACK">ESC=NAZAJ</span>
+    </div>
+  </div>
+
+  <div class="screen sudoku-screen" id="sudoku-screen" hidden>
+    <div class="titlebar">
+      <p class="ascii-title" id="sudoku-title" style="font-size:clamp(1.8rem,7vw,2.6rem);" data-sl="SUDOKU" data-en="SUDOKU">SUDOKU</p>
+      <p class="sub" data-sl="IZBERI TEŽAVNOST" data-en="CHOOSE DIFFICULTY">IZBERI TEŽAVNOST</p>
+    </div>
+
+    <div class="diff-row" role="group" aria-label="Difficulty">
+      <button type="button" class="diff-btn" data-diff="easy" data-sl="LAHKO" data-en="EASY">LAHKO</button>
+      <button type="button" class="diff-btn active" data-diff="medium" data-sl="SREDNJE" data-en="MEDIUM">SREDNJE</button>
+      <button type="button" class="diff-btn" data-diff="hard" data-sl="TEŽKO" data-en="HARD">TEŽKO</button>
+    </div>
+
+    <div class="sudoku-wrap">
+      <div class="sudoku-grid" id="sudoku-grid" role="group" aria-label="Sudoku grid"></div>
+    </div>
+
+    <div class="numpad" role="group" aria-label="Number pad">
+      <button type="button" class="num-btn" data-num="1">1</button>
+      <button type="button" class="num-btn" data-num="2">2</button>
+      <button type="button" class="num-btn" data-num="3">3</button>
+      <button type="button" class="num-btn" data-num="4">4</button>
+      <button type="button" class="num-btn" data-num="5">5</button>
+      <button type="button" class="num-btn" data-num="6">6</button>
+      <button type="button" class="num-btn" data-num="7">7</button>
+      <button type="button" class="num-btn" data-num="8">8</button>
+      <button type="button" class="num-btn" data-num="9">9</button>
+      <button type="button" class="num-btn num-clear" data-num="0" aria-label="Clear cell">&times;</button>
+    </div>
+
+    <div class="statusbar">
+      <span class="prompt" id="sudoku-msg">IZBERI POLJE IN VNESI ŠTEVILKO</span>
+      <button type="button" class="new-game-btn" id="sudoku-new" data-sl="NOVA IGRA" data-en="NEW GAME">NOVA IGRA</button>
+      <span data-sl="ESC=NAZAJ" data-en="ESC=BACK">ESC=NAZAJ</span>
+    </div>
+  </div>
+
+<script>
+  function drawSprite(id, grid, palette){
+    var svg = document.getElementById(id);
+    if(!svg) return;
+    var frag = document.createDocumentFragment();
+    for(var y = 0; y < grid.length; y++){
+      var row = grid[y];
+      for(var x = 0; x < row.length; x++){
+        var ch = row[x];
+        if(ch !== '.'){
+          var rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+          rect.setAttribute('x', x);
+          rect.setAttribute('y', y);
+          rect.setAttribute('width', 1.02);
+          rect.setAttribute('height', 1.02);
+          rect.setAttribute('fill', palette[ch]);
+          frag.appendChild(rect);
+        }
+      }
+    }
+    svg.appendChild(frag);
+  }
+
+  var snakeGrid = [
+    "............",
+    "............",
+    "..GGGG......",
+    ".G....G.....",
+    ".G.....G....",
+    "..G.....G...",
+    "...G.....G..",
+    "....G.....GG",
+    ".....G....RG",
+    "......G...GG",
+    ".......GGGG.",
+    "............"
+  ];
+  var snakePalette = { G:"#55FF55", R:"#FF5555" };
+
+  var sudokuGrid = [
+    "KKKKKKKKKKKK",
+    "KWWWKWWWKWWW",
+    "KWWWKWWWKWWW",
+    "KWWWKWWWKWWW",
+    "KKKKKKKKKKKK",
+    "KWWWKCCCKWWW",
+    "KWWWKCCCKWWW",
+    "KWWWKCCCKWWW",
+    "KKKKKKKKKKKK",
+    "KWWWKWWWKWWW",
+    "KWWWKWWWKWWW",
+    "KWWWKWWWKWWW"
+  ];
+  var sudokuPalette = { K:"#000000", W:"#FFFFFF", C:"#55FFFF" };
+  drawSprite('spr-sudoku', sudokuGrid, sudokuPalette);
+  drawSprite('spr-snake', snakeGrid, snakePalette);
+
+  // ----- Language toggle (shares fotraLang with the hub — same origin) -----
+  var currentLang = 'sl';
+  try{
+    var storedLang = localStorage.getItem('fotraLang');
+    if(storedLang === 'en' || storedLang === 'sl'){ currentLang = storedLang; }
+    var urlLang = new URLSearchParams(window.location.search).get('lang');
+    if(urlLang === 'en' || urlLang === 'sl'){ currentLang = urlLang; }
+  }catch(e){}
+
+  var gameMsgState = 'idle'; // idle | playing | over
+  var gameMsgs = {
+    sl: { idle: 'PUŠČICE/GUMBI = PREMIK', playing: 'IGRA SE...', over: 'KONEC - ENTER/GUMB=ZNOVA' },
+    en: { idle: 'ARROWS/BTNS = MOVE', playing: 'PLAYING...', over: 'GAME OVER - ENTER/BTN=RESTART' }
+  };
+  function updateGameMsg(){
+    msgEl.textContent = gameMsgs[currentLang][gameMsgState];
+  }
+
+  function setLang(lang){
+    currentLang = lang;
+    document.documentElement.lang = lang;
+
+    document.querySelectorAll('[data-sl][data-en]').forEach(function(el){
+      el.textContent = lang === 'en' ? el.getAttribute('data-en') : el.getAttribute('data-sl');
+    });
+
+    document.querySelectorAll('.lang-btn').forEach(function(btn){
+      btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+    });
+
+    // fotra.net doesn't need ?lang= from this page (same origin, shared
+    // localStorage), but the other subpages do, so keep the home link
+    // consistent with the rest of the family anyway.
+    var homeBtn = document.querySelector('.home-btn');
+    if(homeBtn) homeBtn.href = 'https://fotra.net/?lang=' + lang;
+
+    try{ localStorage.setItem('fotraLang', lang); }catch(e){}
+
+    try{
+      var selfUrl = new URL(window.location.href);
+      selfUrl.searchParams.set('lang', lang);
+      history.replaceState(history.state, '', selfUrl);
+    }catch(e){}
+
+    updateGameMsg();
+    updateSudokuMsg();
+  }
+
+  document.querySelectorAll('.lang-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      setLang(btn.getAttribute('data-lang'));
+    });
+  });
+
+  // ----- Snake -----
+  var menuScreen = document.getElementById('menu-screen');
+  var snakeScreen = document.getElementById('snake-screen');
+  var snakeBtn = document.getElementById('snake-btn');
+  var canvas = document.getElementById('snake-canvas');
+  var ctx = canvas.getContext('2d');
+  var scoreEl = document.getElementById('snake-score');
+  var msgEl = document.getElementById('snake-msg');
+
+  var GRID = 20;
+  var CELL = canvas.width / GRID;
+  var snake, dir, nextDir, food, score, loopId, gameOver, gameStarted;
+
+  function resetGame(){
+    snake = [{x:10,y:10},{x:9,y:10},{x:8,y:10}];
+    dir = {x:1,y:0};
+    nextDir = {x:1,y:0};
+    score = 0;
+    gameOver = false;
+    gameStarted = false;
+    placeFood();
+    scoreEl.textContent = 'SCORE: 0';
+    gameMsgState = 'idle';
+    updateGameMsg();
+    drawGame();
+  }
+
+  function placeFood(){
+    var ok = false;
+    while(!ok){
+      food = { x: Math.floor(Math.random()*GRID), y: Math.floor(Math.random()*GRID) };
+      ok = !snake.some(function(s){ return s.x === food.x && s.y === food.y; });
+    }
+  }
+
+  function drawGame(){
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = '#FF5555';
+    ctx.fillRect(food.x*CELL, food.y*CELL, CELL, CELL);
+
+    ctx.fillStyle = '#55FF55';
+    snake.forEach(function(seg, i){
+      ctx.fillStyle = i === 0 ? '#FFFFFF' : '#55FF55';
+      ctx.fillRect(seg.x*CELL + 1, seg.y*CELL + 1, CELL - 2, CELL - 2);
+    });
+  }
+
+  function tick(){
+    if(gameOver) return;
+    dir = nextDir;
+    var head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+
+    var hitWall = head.x < 0 || head.x >= GRID || head.y < 0 || head.y >= GRID;
+    var hitSelf = snake.some(function(s){ return s.x === head.x && s.y === head.y; });
+
+    if(hitWall || hitSelf){
+      gameOver = true;
+      clearInterval(loopId);
+      gameMsgState = 'over';
+      updateGameMsg();
+      return;
+    }
+
+    snake.unshift(head);
+
+    if(head.x === food.x && head.y === food.y){
+      score += 10;
+      scoreEl.textContent = 'SCORE: ' + score;
+      placeFood();
+    } else {
+      snake.pop();
+    }
+
+    drawGame();
+  }
+
+  function startGame(){
+    if(gameStarted) return;
+    gameStarted = true;
+    gameMsgState = 'playing';
+    updateGameMsg();
+    loopId = setInterval(tick, 120);
+  }
+
+  var snakeHistoryPushed = false;
+
+  function openSnake(){
+    menuScreen.hidden = true;
+    snakeScreen.hidden = false;
+    resetGame();
+    history.pushState({ fotraScreen:'snake' }, '');
+    snakeHistoryPushed = true;
+  }
+
+  function closeSnake(viaPopstate){
+    clearInterval(loopId);
+    snakeScreen.hidden = true;
+    menuScreen.hidden = false;
+    snakeBtn.focus({ preventScroll:true });
+    if(snakeHistoryPushed && !viaPopstate){
+      snakeHistoryPushed = false;
+      history.back();
+    } else {
+      snakeHistoryPushed = false;
+    }
+  }
+
+  snakeBtn.addEventListener('click', openSnake);
+
+  function applyDir(d){
+    if(gameOver){ return; }
+    if(dir.x + d.x !== 0 || dir.y + d.y !== 0){
+      nextDir = d;
+    }
+    startGame();
+  }
+
+  var dirMap = { up:{x:0,y:-1}, down:{x:0,y:1}, left:{x:-1,y:0}, right:{x:1,y:0} };
+  document.querySelectorAll('.dpad-btn').forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      if(gameOver){ resetGame(); return; }
+      applyDir(dirMap[btn.getAttribute('data-dir')]);
+    });
+  });
+
+  // ----- Sudoku -----
+  var sudokuScreen = document.getElementById('sudoku-screen');
+  var sudokuBtn = document.getElementById('sudoku-btn');
+  var sudokuGridEl = document.getElementById('sudoku-grid');
+  var sudokuMsgEl = document.getElementById('sudoku-msg');
+  var sudokuNewBtn = document.getElementById('sudoku-new');
+  var diffButtons = document.querySelectorAll('.diff-btn');
+
+  var sudokuPuzzle, sudokuSolution, sudokuGiven, sudokuCells;
+  var sudokuDifficulty = 'medium';
+  var selR = 0, selC = 0;
+  var sudokuMsgState = 'idle'; // idle | won
+
+  var sudokuMsgs = {
+    sl: { idle: 'IZBERI POLJE IN VNESI ŠTEVILKO', won: 'REŠENO! ČESTITAM' },
+    en: { idle: 'SELECT A CELL AND TYPE A NUMBER', won: 'SOLVED! WELL DONE' }
+  };
+
+  function updateSudokuMsg(){
+    sudokuMsgEl.textContent = sudokuMsgs[currentLang][sudokuMsgState];
+  }
+
+  function shuffle(arr){
+    for(var i = arr.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    }
+    return arr;
+  }
+
+  function sudokuValid(g, r, c, v){
+    for(var i = 0; i < 9; i++){
+      if(g[r][i] === v) return false;
+      if(g[i][c] === v) return false;
+    }
+    var br = r - r % 3, bc = c - c % 3;
+    for(var i = 0; i < 3; i++){
+      for(var j = 0; j < 3; j++){
+        if(g[br + i][bc + j] === v) return false;
+      }
+    }
+    return true;
+  }
+
+  function sudokuFindEmpty(g){
+    for(var r = 0; r < 9; r++){
+      for(var c = 0; c < 9; c++){
+        if(g[r][c] === 0) return [r, c];
+      }
+    }
+    return null;
+  }
+
+  function sudokuFill(g){
+    var spot = sudokuFindEmpty(g);
+    if(!spot) return true;
+    var r = spot[0], c = spot[1];
+    var nums = shuffle([1,2,3,4,5,6,7,8,9]);
+    for(var i = 0; i < nums.length; i++){
+      var v = nums[i];
+      if(sudokuValid(g, r, c, v)){
+        g[r][c] = v;
+        if(sudokuFill(g)) return true;
+        g[r][c] = 0;
+      }
+    }
+    return false;
+  }
+
+  function sudokuCountSolutions(g, limit){
+    var spot = sudokuFindEmpty(g);
+    if(!spot) return 1;
+    var r = spot[0], c = spot[1];
+    var count = 0;
+    for(var v = 1; v <= 9; v++){
+      if(sudokuValid(g, r, c, v)){
+        g[r][c] = v;
+        count += sudokuCountSolutions(g, limit - count);
+        g[r][c] = 0;
+        if(count >= limit) return count;
+      }
+    }
+    return count;
+  }
+
+  function sudokuClone(g){
+    return g.map(function(row){ return row.slice(); });
+  }
+
+  var SUDOKU_CLUES = { easy: 40, medium: 32, hard: 26 };
+
+  function generateSudoku(diff){
+    var solution = [];
+    for(var i = 0; i < 9; i++) solution.push([0,0,0,0,0,0,0,0,0]);
+    sudokuFill(solution);
+
+    var puzzle = sudokuClone(solution);
+    var targetRemoved = 81 - (SUDOKU_CLUES[diff] || SUDOKU_CLUES.medium);
+    var positions = [];
+    for(var r = 0; r < 9; r++){
+      for(var c = 0; c < 9; c++) positions.push([r, c]);
+    }
+    positions = shuffle(positions);
+
+    var removed = 0;
+    for(var i = 0; i < positions.length && removed < targetRemoved; i++){
+      var r = positions[i][0], c = positions[i][1];
+      var backup = puzzle[r][c];
+      puzzle[r][c] = 0;
+      if(sudokuCountSolutions(sudokuClone(puzzle), 2) === 1){
+        removed++;
+      } else {
+        puzzle[r][c] = backup;
+      }
+    }
+
+    return { puzzle: puzzle, solution: solution };
+  }
+
+  function buildSudokuGrid(){
+    sudokuGridEl.innerHTML = '';
+    sudokuCells = [];
+    for(var r = 0; r < 9; r++){
+      sudokuCells.push([]);
+      for(var c = 0; c < 9; c++){
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'sudoku-cell';
+        if(c === 2 || c === 5) btn.classList.add('box-r');
+        if(r === 2 || r === 5) btn.classList.add('box-b');
+        btn.addEventListener('click', (function(rr, cc){
+          return function(){ selR = rr; selC = cc; renderSudoku(); };
+        })(r, c));
+        sudokuGridEl.appendChild(btn);
+        sudokuCells[r].push(btn);
+      }
+    }
+  }
+
+  function sudokuHasConflict(r, c, v){
+    for(var i = 0; i < 9; i++){
+      if(i !== c && sudokuPuzzle[r][i] === v) return true;
+      if(i !== r && sudokuPuzzle[i][c] === v) return true;
+    }
+    var br = r - r % 3, bc = c - c % 3;
+    for(var i = 0; i < 3; i++){
+      for(var j = 0; j < 3; j++){
+        var rr = br + i, cc = bc + j;
+        if((rr !== r || cc !== c) && sudokuPuzzle[rr][cc] === v) return true;
+      }
+    }
+    return false;
+  }
+
+  function renderSudoku(){
+    for(var r = 0; r < 9; r++){
+      for(var c = 0; c < 9; c++){
+        var btn = sudokuCells[r][c];
+        var v = sudokuPuzzle[r][c];
+        btn.textContent = v === 0 ? '' : String(v);
+        btn.classList.toggle('given', sudokuGiven[r][c]);
+        btn.classList.toggle('selected', r === selR && c === selC);
+        var conflict = v !== 0 && !sudokuGiven[r][c] && sudokuHasConflict(r, c, v);
+        btn.classList.toggle('conflict', conflict);
+      }
+    }
+  }
+
+  function checkSudokuWin(){
+    var solved = true;
+    outer:
+    for(var r = 0; r < 9; r++){
+      for(var c = 0; c < 9; c++){
+        if(sudokuPuzzle[r][c] !== sudokuSolution[r][c]){ solved = false; break outer; }
+      }
+    }
+    sudokuMsgState = solved ? 'won' : 'idle';
+    updateSudokuMsg();
+  }
+
+  function setSudokuCell(v){
+    if(sudokuGiven[selR][selC]) return;
+    sudokuPuzzle[selR][selC] = v;
+    renderSudoku();
+    checkSudokuWin();
+  }
+
+  function startSudoku(diff){
+    sudokuDifficulty = diff;
+    diffButtons.forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-diff') === diff);
+    });
+    var result = generateSudoku(diff);
+    sudokuPuzzle = result.puzzle;
+    sudokuSolution = result.solution;
+    sudokuGiven = sudokuPuzzle.map(function(row){
+      return row.map(function(v){ return v !== 0; });
+    });
+    selR = 0; selC = 0;
+    sudokuMsgState = 'idle';
+    if(!sudokuCells) buildSudokuGrid();
+    renderSudoku();
+    updateSudokuMsg();
+  }
+
+  diffButtons.forEach(function(b){
+    b.addEventListener('click', function(){
+      startSudoku(b.getAttribute('data-diff'));
+    });
+  });
+
+  sudokuNewBtn.addEventListener('click', function(){
+    startSudoku(sudokuDifficulty);
+  });
+
+  document.querySelectorAll('.num-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      setSudokuCell(parseInt(btn.getAttribute('data-num'), 10));
+    });
+  });
+
+  var sudokuHistoryPushed = false;
+
+  function openSudoku(){
+    menuScreen.hidden = true;
+    sudokuScreen.hidden = false;
+    if(!sudokuPuzzle) startSudoku(sudokuDifficulty);
+    history.pushState({ fotraScreen:'sudoku' }, '');
+    sudokuHistoryPushed = true;
+  }
+
+  function closeSudoku(viaPopstate){
+    sudokuScreen.hidden = true;
+    menuScreen.hidden = false;
+    sudokuBtn.focus({ preventScroll:true });
+    if(sudokuHistoryPushed && !viaPopstate){
+      sudokuHistoryPushed = false;
+      history.back();
+    } else {
+      sudokuHistoryPushed = false;
+    }
+  }
+
+  sudokuBtn.addEventListener('click', openSudoku);
+
+  window.addEventListener('popstate', function(){
+    if(!snakeScreen.hidden){
+      closeSnake(true);
+    } else if(!sudokuScreen.hidden){
+      closeSudoku(true);
+    }
+  });
+
+  document.addEventListener('keydown', function(e){
+    if(e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')){
+      return;
+    }
+
+    var snakeOpen = !snakeScreen.hidden;
+
+    if(snakeOpen){
+      var arrowMap = {
+        ArrowUp:{x:0,y:-1}, ArrowDown:{x:0,y:1},
+        ArrowLeft:{x:-1,y:0}, ArrowRight:{x:1,y:0}
+      };
+
+      if(e.key === 'Escape'){
+        e.preventDefault();
+        closeSnake();
+        return;
+      }
+
+      if(arrowMap[e.key]){
+        e.preventDefault();
+        applyDir(arrowMap[e.key]);
+        return;
+      }
+
+      if(gameOver && e.key === 'Enter'){
+        e.preventDefault();
+        resetGame();
+        return;
+      }
+
+      return;
+    }
+
+    var sudokuOpen = !sudokuScreen.hidden;
+
+    if(sudokuOpen){
+      if(e.key === 'Escape'){
+        e.preventDefault();
+        closeSudoku();
+        return;
+      }
+
+      var sudokuArrowMap = {
+        ArrowUp:[-1,0], ArrowDown:[1,0], ArrowLeft:[0,-1], ArrowRight:[0,1]
+      };
+      if(sudokuArrowMap[e.key]){
+        e.preventDefault();
+        var d = sudokuArrowMap[e.key];
+        selR = Math.min(8, Math.max(0, selR + d[0]));
+        selC = Math.min(8, Math.max(0, selC + d[1]));
+        renderSudoku();
+        return;
+      }
+
+      if(/^[1-9]$/.test(e.key)){
+        e.preventDefault();
+        setSudokuCell(parseInt(e.key, 10));
+        return;
+      }
+
+      if(e.key === 'Backspace' || e.key === 'Delete' || e.key === '0'){
+        e.preventDefault();
+        setSudokuCell(0);
+        return;
+      }
+
+      return;
+    }
+
+    // On the games menu itself: Escape goes back to the hub, X/S jump
+    // straight into a game (same shortcuts the hub used to offer).
+    if(e.key === 'Escape'){
+      window.location.href = 'https://fotra.net/?lang=' + currentLang;
+      return;
+    }
+
+    var key = e.key.toUpperCase();
+
+    if(key === 'X'){
+      e.preventDefault();
+      snakeBtn.classList.add('keyed');
+      window.setTimeout(openSnake, 160);
+      return;
+    }
+
+    if(key === 'S'){
+      e.preventDefault();
+      sudokuBtn.classList.add('keyed');
+      window.setTimeout(openSudoku, 160);
+      return;
+    }
+  });
+
+  setLang(currentLang);
+</script>
+
+</body>
+</html>
