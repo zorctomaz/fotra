@@ -322,7 +322,7 @@
   <div class="screen">
     <div class="titlebar">
       <p class="ascii-title">FOTRA</p>
-      <p class="sub"><span data-sl="NORVEŠKA" data-en="NORWAY">NORVEŠKA</span><span class="sep">·</span><span data-sl="JADRANJE" data-en="SAILING">JADRANJE</span><span class="sep">·</span><span data-sl="AI" data-en="AI">AI</span><span class="sep">·</span><span data-sl="VIDEO" data-en="VIDEO">VIDEO</span><span class="sep">·</span><span data-sl="FOTO" data-en="PHOTO">FOTO</span></p>
+      <p class="sub"><span data-sl="NORVEŠKA" data-en="NORWAY">NORVEŠKA</span><span class="sep">·</span><span data-sl="JADRANJE" data-en="SAILING">JADRANJE</span><span class="sep">·</span><span data-sl="PARAGLIDING" data-en="PARAGLIDING">PARAGLIDING</span><span class="sep">·</span><span data-sl="AI" data-en="AI">AI</span><span class="sep">·</span><span data-sl="VIDEO" data-en="VIDEO">VIDEO</span><span class="sep">·</span><span data-sl="FOTO" data-en="PHOTO">FOTO</span></p>
       <div class="titlebar-controls">
         <div class="lang-toggle" role="group" aria-label="Language">
           <button type="button" class="lang-btn active" data-lang="sl">SI</button>
@@ -342,6 +342,13 @@
           <svg viewBox="0 0 24 24" style="shape-rendering:auto;"><rect width="24" height="24" fill="#0000AA"/><path d="M12 3v10M12 4l5.5 8H12M4 17h16l-2.5 4h-11z" fill="none" stroke="#FFFF55" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </span>
         <span><span class="key" data-sl="[J]" data-en="[S]">[J]</span> <span data-sl="JADRANJE" data-en="SAILING">JADRANJE</span></span>
+      </a>
+      <a class="item" href="https://paragliding.fotra.net">
+        <span class="sprite-wrap">
+          <!-- paragliding.fotra.net icon: canopy + lines to pilot, not a pixel sprite -->
+          <svg viewBox="0 0 24 24" style="shape-rendering:auto;"><rect width="24" height="24" fill="#0000AA"/><path d="M3 8c3-4 15-4 18 0" fill="none" stroke="#FFFF55" stroke-width="1.8" stroke-linecap="round"/><path d="M5 8l6 9M9 8l3 9M15 8l-3 9M19 8l-6 9" fill="none" stroke="#FFFF55" stroke-width="1.2" stroke-linecap="round"/><circle cx="12" cy="19" r="1.6" fill="#FFFF55"/></svg>
+        </span>
+        <span><span class="key" data-sl="[L]" data-en="[L]">[L]</span> <span data-sl="PARAGLIDING" data-en="PARAGLIDING">PARAGLIDING</span></span>
       </a>
       <a class="item" href="https://ai.fotra.net">
         <span class="sprite-wrap"><svg id="spr-ai" viewBox="0 0 12 12"></svg></span>
@@ -515,7 +522,8 @@
       norway: 'https://norway.fotra.net',
       ai: 'https://ai.fotra.net',
       jadranje: 'https://jadranje.fotra.net',
-      video: 'https://video.fotra.net'
+      video: 'https://video.fotra.net',
+      paragliding: 'https://paragliding.fotra.net'
     };
     Object.keys(langLinkedOrigins).forEach(function(id){
       var origin = langLinkedOrigins[id];
@@ -542,13 +550,14 @@
     ai: 'https://ai.fotra.net',
     norway: 'https://norway.fotra.net',
     jadranje: 'https://jadranje.fotra.net',
+    paragliding: 'https://paragliding.fotra.net',
     video: 'https://video.fotra.net',
     foto: 'https://www.instagram.com/dart__ejder/',
     games: 'games.html'
   };
   var keysByLang = {
-    sl: { A:'ai', N:'norway', J:'jadranje', V:'video', F:'foto', I:'games' },
-    en: { A:'ai', N:'norway', S:'jadranje', V:'video', P:'foto', G:'games' }
+    sl: { A:'ai', N:'norway', J:'jadranje', L:'paragliding', V:'video', F:'foto', I:'games' },
+    en: { A:'ai', N:'norway', S:'jadranje', L:'paragliding', V:'video', P:'foto', G:'games' }
   };
 
   // ----- Terminal-style command input (C:\FOTRA>), CMD-like -----
@@ -556,13 +565,13 @@
   var termInput = document.getElementById('termInput');
 
   var termHelp = {
-    sl: ['Ukazi: J=JADRANJE  N=NORVEŠKA  A=AI  V=VIDEO  F=FOTO  G=IGRE', 'DIR = izpiši meni    CLS = počisti zaslon    HELP = ta pomoč'],
-    en: ['Commands: J=SAILING  N=NORWAY  A=AI  V=VIDEO  F=PHOTO  G=GAMES', 'DIR = list menu    CLS = clear screen    HELP = this help']
+    sl: ['Ukazi: J=JADRANJE  L=PARAGLIDING  N=NORVEŠKA  A=AI  V=VIDEO  F=FOTO  G=IGRE', 'DIR = izpiši meni    CLS = počisti zaslon    HELP = ta pomoč'],
+    en: ['Commands: J=SAILING  L=PARAGLIDING  N=NORWAY  A=AI  V=VIDEO  F=PHOTO  G=GAMES', 'DIR = list menu    CLS = clear screen    HELP = this help']
   };
 
   var termDir = {
-    sl: [' N   NORVESKA    -> norway.fotra.net', ' J   JADRANJE    -> jadranje.fotra.net', ' A   AI          -> ai.fotra.net', ' V   VIDEO       -> video.fotra.net', ' F   FOTO        -> instagram', ' I   IGRE        -> games.html'],
-    en: [' N   NORWAY      -> norway.fotra.net', ' S   SAILING     -> jadranje.fotra.net', ' A   AI          -> ai.fotra.net', ' V   VIDEO       -> video.fotra.net', ' P   PHOTO       -> instagram', ' G   GAMES       -> games.html']
+    sl: [' N   NORVESKA    -> norway.fotra.net', ' J   JADRANJE    -> jadranje.fotra.net', ' L   PARAGLIDING -> paragliding.fotra.net', ' A   AI          -> ai.fotra.net', ' V   VIDEO       -> video.fotra.net', ' F   FOTO        -> instagram', ' I   IGRE        -> games.html'],
+    en: [' N   NORWAY      -> norway.fotra.net', ' S   SAILING     -> jadranje.fotra.net', ' L   PARAGLIDING -> paragliding.fotra.net', ' A   AI          -> ai.fotra.net', ' V   VIDEO       -> video.fotra.net', ' P   PHOTO       -> instagram', ' G   GAMES       -> games.html']
   };
 
   var termUnknown = {
@@ -576,6 +585,7 @@
     A:'ai', AI:'ai',
     N:'norway', NORVESKA:'norway', NORWAY:'norway',
     J:'jadranje', S:'jadranje', JADRANJE:'jadranje', SAIL:'jadranje', SAILING:'jadranje',
+    L:'paragliding', PARAGLIDING:'paragliding',
     V:'video', VIDEO:'video',
     F:'foto', P:'foto', FOTO:'foto', PHOTO:'foto',
     I:'games', G:'games', GAMES:'games', IGRE:'games', IGRA:'games', GAME:'games',
